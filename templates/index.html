@@ -10,57 +10,26 @@
 
 <body>
     <div class="parallax-container">
-        <img src="/static/Tiger_base_demo.png" id="layer-back" alt="Background Layer">
-        <img src="/static/Tiger_base_demo.png" id="layer-mid" alt="Middle Layer">
-        <img src="/static/Tiger_base_demo.png" id="layer-front" alt="Foreground Layer">
+        <img src="/static/main_menu_assets/Flat_eyes.png" id="layer-back" alt="Background Layer">
+        <img src="/static/main_menu_assets/L_eye.png" id="l_eye" alt="Middle Layer" class="eye">
+        <img src="/static/main_menu_assets/R_eye.png" id="r_eye" alt="Middle Layer" class="eye">
+        <img src="/static/main_menu_assets/Flat_eyes.png" id="layer-back_hue_adjustment" alt="Hue">
+        <img src="/static/main_menu_assets/Top_mask.png" id="layer-front" alt="Foreground Layer">
+        <img src="/static/main_menu_assets/viniette.png" id="viniette" alt="viniette">
+        <img src="/static/main_menu_assets/glow.png" id="glow" alt="glow">
+        
     </div>
 
     <div class="main-container">
-        <div class="grid-container">
-            <button class="button" data-text="Button 1">
-                <span class="actual-text">&nbsp;Button 1&nbsp;</span>
-                <span aria-hidden="true" class="hover-text">&nbsp;Button 1&nbsp;</span>
-            </button>
-            <button class="button" data-text="Button 2">
-                <span class="actual-text">&nbsp;Button 2&nbsp;</span>
-                <span aria-hidden="true" class="hover-text">&nbsp;Button 2&nbsp;</span>
-            </button>
-            <button class="button" data-text="Button 3">
-                <span class="actual-text">&nbsp;Button 3&nbsp;</span>
-                <span aria-hidden="true" class="hover-text">&nbsp;Button 3&nbsp;</span>
-            </button>
-            <button class="button" data-text="Button 4">
-                <span class="actual-text">&nbsp;Button 4&nbsp;</span>
-                <span aria-hidden="true" class="hover-text">&nbsp;Button 4&nbsp;</span>
-            </button>
-            <button class="button" data-text="Button 5">
-                <span class="actual-text">&nbsp;Button 5&nbsp;</span>
-                <span aria-hidden="true" class="hover-text">&nbsp;Button 5&nbsp;</span>
-            </button>
-            <button class="button" data-text="Button 6">
-                <span class="actual-text">&nbsp;Button 6&nbsp;</span>
-                <span aria-hidden="true" class="hover-text">&nbsp;Button 6&nbsp;</span>
-            </button>
-        </div>
+        
+     
+    
     </div>
 
     <div id="cursor-coords">Cursor Position: </div>
+    <div id="screen-dimensions">Screen Dimensions: </div>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-        const coordsLabel = document.getElementById('cursor-coords');
-        window.addEventListener('mousemove', (event) => {
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
-
-            const dx = event.clientX - centerX;
-            const dy = event.clientY - centerY;
-
-            const distance = Math.sqrt(dx * dx + dy * dy).toFixed(2);
-            let angle = (Math.atan2(dy, dx) * (180 / Math.PI)).toFixed(2);
-
-            coordsLabel.textContent = `Distance: ${distance}px, Angle: ${angle}°`;
-        });
-    </script>
+    <script src="/static/main_menu_logic.js"></script>
 </body>
 
 </html>

@@ -1,8 +1,8 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -IC:\vcpkg\installed\x64-windows\include
-LDFLAGS = -lpthread -lws2_32 -lmswsock
+CXXFLAGS = -std=c++20 -Wall -IC:\vcpkg\installed\x64-windows\include -I./labs
+LDFLAGS = -lpthread -lws2_32 -lmswsock -lPowrProf
 TARGET = skls_server
-SRC = main.cpp
+SRC = main.cpp $(wildcard labs/*.cpp)
 
 all: $(TARGET)
 

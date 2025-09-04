@@ -10,6 +10,7 @@ body {
     position: relative;
     width: 100vw;
     height: 100vh;
+    transform: scale(1.3);
 }
 
 .parallax-container img {
@@ -18,12 +19,40 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
 }
 
-#layer-back { z-index: 1; }
-#layer-mid { z-index: 2; }
-#layer-front { z-index: 3; }
+.eye {
+  scale: 0.1;
+  object-fit: contain;
+  width: auto;
+  height: auto;
+  position: absolute; /* if you want to override absolute positioning */
+  /* opacity: 0.6; */
+  mix-blend-mode:normal;
+}
+
+#layer-back { 
+  z-index: 1; 
+}
+#l_eye { z-index: 2; }
+#r_eye { z-index: 2; }
+#layer-front { 
+  z-index: 4; 
+}
+#viniette { 
+  z-index: 5; 
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+#layer-back_hue_adjustment{
+   z-index: 3;
+   mix-blend-mode: overlay; 
+}
+#glow{
+  z-index: 6;
+  mix-blend-mode: soft-light;
+}
+
 
 .main-container {
     position: absolute;
@@ -31,10 +60,9 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 4; /* Ensure this is on top of the parallax layers */
+    z-index: 4;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
     gap: 20px;
 }
@@ -48,65 +76,4 @@ body {
     background-color: rgba(0,0,0,0.5);
     padding: 5px;
     border-radius: 3px;
-}
-
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-gap: 20px;
-    padding: 10px;
-}
-
-/* From Uiverse.io by satyamchaudharydev */
-.button {
-  margin: 0;
-  height: auto;
-  background: transparent;
-  padding: 0;
-  border: none;
-  cursor: pointer;
-}
-
-/* button styling */
-.button {
-  --border-right: 6px;
-  --text-stroke-color: rgba(255,255,255,0.6);
-  --animation-color: #37FF8B;
-  --fs-size: 2em;
-  letter-spacing: 3px;
-  text-decoration: none;
-  font-size: var(--fs-size);
-  font-family: "Arial";
-  position: relative;
-  text-transform: uppercase;
-  color: transparent;
-  -webkit-text-stroke: 1px var(--text-stroke-color);
-}
-
-.actual-text {
-  transition: visibility 0s linear;
-}
-
-.button:hover .actual-text {
-  visibility: hidden;
-  transition-delay: 0.4s; /* Hides text slightly before animation finishes */
-}
-
-/* this is the text, when you hover on button */
-.hover-text {
-  position: absolute;
-  box-sizing: border-box;
-  content: attr(data-text);
-  color: var(--animation-color);
-  width: 0%;
-  inset: 0;
-  border-right: var(--border-right) solid var(--animation-color);
-  overflow: hidden;
-  transition: 0.5s;
-  -webkit-text-stroke: 1px var(--animation-color);
-}
-/* hover */
-.button:hover .hover-text {
-  width: 100%;
-  filter: drop-shadow(0 0 23px var(--animation-color))
 }
