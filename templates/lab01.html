@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LAB 01</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/lab01.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap" rel="stylesheet">
@@ -30,14 +31,23 @@
             <div id="charge"></div>
             <div id="status"></div>
             <div id="power-mode"></div>
+            <div id="info"></div>
+            <div id="time-left"></div>
+            <div id="eco-mode"></div>
+            <div class="loader" id="power-loader" style="display: block"></div>
             <button onclick="sleep()">Sleep</button>
             <button onclick="hibernate()">Hibernate</button>
         </div>
 
-        <img id="power-gif" src="/static/main_menu_assets/tiger-dancing-kpop-demon-hunters.gif" style="display: none; position: absolute; top: 20%; left: 50%; transform: translateX(-50%); width: 200px;">
+        <img id="power-gif" src="/static/tiger-dancing-kpop-demon-hunters.gif" style="display: none; position: absolute; top: 10%; left: 50%; transform: translateX(-50%); width: 200px;">
+        
+
 
         <div id="cursor-coords" style="visibility: hidden;">Cursor Position: </div>
         <div id="screen-dimensions" style="visibility: hidden;">Screen Dimensions: </div>
+        <!-- From Uiverse.io by Yaya12085 --> 
+        
+
     </div>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/static/main_menu_logic.js"></script>

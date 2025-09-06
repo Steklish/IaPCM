@@ -45,6 +45,21 @@ int main()
         return response;
     });
 
+    CROW_ROUTE(app, "/getInfo")([&bMonitor](){
+        crow::json::wvalue response;
+        response["message"] = bMonitor.getBatteryInfo();
+        response["status"] = 200;
+        return response;
+    });
+    
+    //retutns time left in seconds
+    CROW_ROUTE(app, "/getTimeLeft")([&bMonitor](){
+        crow::json::wvalue response;
+        response["message"] = bMonitor.getTimeLeft();
+        response["status"] = 200;
+        return response;
+    });
+
     CROW_ROUTE(app, "/sleep")([&bMonitor](){
         bMonitor.sleep();
         return "Sleeping...";
@@ -53,6 +68,13 @@ int main()
     CROW_ROUTE(app, "/hibernate")([&bMonitor](){
         bMonitor.hibernate();
         return "Hibernating...";
+    });
+
+    CROW_ROUTE(app, "/isEco")([&bMonitor](){
+        crow::json::wvalue response;
+        response["message"] = bMonitor.isEco();
+        response["status"] = 200;
+        return response;
     });
     // LAB 01 - battery infj end
 
