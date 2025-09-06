@@ -1,9 +1,11 @@
 body {
     margin: 0;
-    font-family: sans-serif;
     min-height: 100vh;
     background-color: #000;
     overflow: hidden; /* Prevents scrollbars from parallax effect */
+    font-family: "Zen Dots", sans-serif;
+    font-weight: 400;
+    font-style: normal;
 }
 
 .parallax-container {
@@ -62,9 +64,9 @@ body {
     height: 100%;
     z-index: 4;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 20px;
+    justify-content: space-around;
+    /* flex-wrap: wrap; */
+    /* gap: 20px; */
 }
 
 #cursor-coords {
@@ -76,4 +78,90 @@ body {
     background-color: rgba(0,0,0,0.5);
     padding: 5px;
     border-radius: 3px;
+}
+:root {
+  --btn-color: #ffffffd1;       /* normal text and border color */
+  --btn-color-hover: #ed9f40;   /* hover/focus text and border color */
+  --black: #000;
+}
+
+.dark-button {
+  padding: 10px 20px;
+  text-transform: uppercase;
+  border-radius: 800px;
+  font-size: 17px;
+  font-family: "Zen Dots", sans-serif;
+  font-weight: 500;
+  color: var(--btn-color);
+  text-shadow: none;
+  background: transparent;
+  cursor: pointer;
+  border: 2px solid #00000000;
+  transition: 0.5s ease;
+  user-select: none;
+}
+
+.dark-button:hover,
+.dark-button:focus {
+  color: white;
+  /* background: var(--btn-color-hover); */
+  border: 100px solid #00000000;
+  font-size: 70px;
+  /* border-radius: 15px; */
+  text-shadow: 0 0 500px rgb(240, 133, 33), 0 0 100px white, 0 0 200px rgb(255, 72, 0);
+  box-shadow: 0 0 500px var(--black), 0 0 200px var(--black), 0 0 500px var(--black),
+              0 0 100000px var(--black), 0 0 100000px var(--black), 0 0 100000px var(--black), 0 0 100000000px var(--black);
+}
+
+.home-button {
+    position: absolute;
+    background-color: #ffffff32;
+    border-style: solid;
+    border-color: white;
+    color: white;
+    top: 20px;
+    left: 20px;
+    padding: 20px;
+    font-size: 50px;
+    border-radius: 25px;
+    margin: 5px;
+    text-align: center;
+    transition: 0.2s ease;
+}
+
+.home-button:hover{
+  text-shadow: 0 0 500px rgb(240, 133, 33), 0 0 100px white, 0 0 200px rgb(255, 72, 0), 0 0 500px rgb(240, 133, 33), 0 0 100px white, 0 0 200px rgb(255, 72, 0);
+}
+
+#battery-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 18px;
+}
+
+#battery-info div {
+    margin-bottom: 10px;
+}
+
+#battery-info button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+#battery-info button:hover {
+    background-color: #45a049;
 }

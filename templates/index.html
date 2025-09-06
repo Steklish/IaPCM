@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LAB 01</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -21,13 +24,15 @@
     </div>
 
     <div class="main-container">
-        
-     
+        <button class="dark-button" onclick="window.location.href='./lab01';">LAB 01</button>
+        <!-- <button>LAB 02</button>
+        <button>LAB 03</button>
+        <button>LAB 04</button> -->
     
     </div>
 
-    <div id="cursor-coords">Cursor Position: </div>
-    <div id="screen-dimensions">Screen Dimensions: </div>
+    <div id="cursor-coords" style="visibility: hidden;">Cursor Position: </div>
+    <div id="screen-dimensions" style="visibility: hidden;">Screen Dimensions: </div>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/static/main_menu_logic.js"></script>
 </body>

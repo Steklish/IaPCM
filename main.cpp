@@ -15,7 +15,15 @@ int main()
         auto rendered = crow::mustache::load("index.html").render(ctx);
         return rendered;
     });
+
+    // LAB 01 - battery infj
     
+    CROW_ROUTE(app, "/lab01")([](){
+        crow::mustache::context ctx;
+        auto rendered = crow::mustache::load("lab01.html").render(ctx);
+        return rendered;
+    });
+
     CROW_ROUTE(app, "/getCharge")([&bMonitor](){
         crow::json::wvalue response;
         response["message"] = bMonitor.getCharge();
@@ -46,6 +54,9 @@ int main()
         bMonitor.hibernate();
         return "Hibernating...";
     });
+    // LAB 01 - battery infj end
+
+
 
     app.port(8080).run();
 }

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAB 01</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="parallax-container">
+        <img src="/static/main_menu_assets/Flat_eyes.png" id="layer-back" alt="Background Layer">
+        <img src="/static/main_menu_assets/L_eye.png" id="l_eye" alt="Middle Layer" class="eye">
+        <img src="/static/main_menu_assets/R_eye.png" id="r_eye" alt="Middle Layer" class="eye">
+        <img src="/static/main_menu_assets/Flat_eyes.png" id="layer-back_hue_adjustment" alt="Hue">
+        <img src="/static/main_menu_assets/Top_mask.png" id="layer-front" alt="Foreground Layer">
+        <img src="/static/main_menu_assets/viniette.png" id="viniette" alt="viniette">
+        <img src="/static/main_menu_assets/glow.png" id="glow" alt="glow">
+        
+    </div>
+
+    <div class="main-container">
+        <button onclick="location.href='/'" class="home-button">⌂</button>
+
+        <div id="battery-info">
+            <div id="charge"></div>
+            <div id="status"></div>
+            <div id="power-mode"></div>
+            <button onclick="sleep()">Sleep</button>
+            <button onclick="hibernate()">Hibernate</button>
+        </div>
+
+        <img id="power-gif" src="/static/main_menu_assets/tiger-dancing-kpop-demon-hunters.gif" style="display: none; position: absolute; top: 20%; left: 50%; transform: translateX(-50%); width: 200px;">
+
+        <div id="cursor-coords" style="visibility: hidden;">Cursor Position: </div>
+        <div id="screen-dimensions" style="visibility: hidden;">Screen Dimensions: </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/static/main_menu_logic.js"></script>
+    <script src="/static/lab01.js"></script>
+</body>
+
+</html>

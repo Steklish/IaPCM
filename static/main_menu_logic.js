@@ -39,7 +39,7 @@ window.addEventListener('mousemove', (event) => {
     const normalized_distance = distance / max_distance;
 
     const base_scale = 0.1;
-    const scale_factor = 0.0004;
+    const scale_factor = 0.0008;
     const new_scale = base_scale + distance * distance * scale_factor * scale_factor;
 
     lEye.style.transform = `scaleX(${0.8 + normalized_distance * 0.2})`;
