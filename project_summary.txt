@@ -1,0 +1,85 @@
+### Chapter 1: Project Overview
+
+This project is a simple web application designed to monitor the battery status of the Windows host machine it's running on. It consists of a C++ backend server that exposes a RESTful API to query battery information, and a web-based frontend that displays this information to the user in real-time. The application also provides buttons to put the host machine to sleep or into hibernation.
+
+The user interface has a stylized, modern look with a parallax effect featuring a tiger, and the main menu has interactive elements that respond to mouse movement.
+
+### Chapter 2: Backend Components
+
+The backend is a C++ application that acts as a web server.
+
+**Libraries Used:**
+*   **Crow:** A C++ micro-framework for creating web APIs. It's used to define the server's routes and handle HTTP requests.
+*   **Windows API:** Specifically, `windows.h`, `powrprof.h`, `setupapi.h`, and `batclass.h`. These are used to interact directly with the Windows operating system to get detailed power and battery information.
+*   **Standard C++ Libraries:** `iostream`, `string`, `sstream`, etc., for general programming tasks.
+
+**Core Logic (`lab_01.cpp`, `lab_01.hpp`):**
+The `batteryMonitor` class encapsulates all the logic for retrieving battery information.
+
+**Algorithms and Functionality:**
+*   **`GetSystemPowerStatus`:** This Windows API function is the primary mechanism used to get:
+    *   Battery charge percentage.
+    *   AC power line status (online/offline).
+    *   General battery status (charging, critical, low, high).
+    *   Estimated time remaining in seconds.
+    *   Battery saver (Eco mode) status.
+*   **Device IO Control (`DeviceIoControl`):** The application goes deeper than the basic status by querying for battery devices. It uses `SetupDiGetClassDevs` to find all devices of the battery class and then uses `IOCTL_BATTERY_QUERY_TAG` and `IOCTL_BATTERY_QUERY_INFORMATION` to retrieve more detailed hardware information, such as:
+    *   Battery Chemistry (e.g., Li-Ion).
+    *   Designed Capacity.
+    *   Full Charged Capacity.
+    *   Cycle Count.
+*   **`SetSuspendState`:** This Windows API function is called to programmatically trigger sleep or hibernation on the host machine.
+
+**API Endpoints (`main.cpp`):**
+The Crow server exposes the following endpoints:
+*   `/`: Serves the main menu page (`index.html`).
+*   `/lab01`: Serves the battery monitor page (`lab01.html`).
+*   `/getCharge`: Returns the battery charge percentage.
+*   `/getStatus`: Returns the battery status flags as a human-readable string.
+*   `/getPowerMode`: Returns the AC power status ("Online" or "Offline").
+*   `/getInfo`: Returns detailed battery hardware information.
+*   `/getTimeLeft`: Returns the estimated battery time remaining in seconds.
+*   `/isEco`: Returns the status of the battery saver mode ("On" or "Off").
+*   `/sleep`: Puts the computer to sleep.
+*   `/hibernate`: Hibernates the computer.
+
+### Chapter 3: Frontend Components
+
+The frontend is built with standard HTML, CSS, and JavaScript.
+
+**Libraries Used:**
+*   **Axios:** A promise-based HTTP client used in the JavaScript files to make requests to the backend API endpoints. It is included via a CDN.
+*   **Google Fonts:** The "Zen Dots" font is used for styling the text.
+
+**Pages:**
+*   **`index.html`:** The main entry point of the application. It features a large, interactive button to navigate to the "LAB 01" battery monitor page. It includes a parallax background effect with a tiger whose eyes and surrounding glow react to the user's cursor position.
+*   **`lab01.html`:** The main dashboard for viewing battery information. It displays all the data fetched from the backend and includes the "Sleep" and "Hibernate" buttons.
+
+**Styling (`style.css`, `lab01.css`):**
+*   The UI has a dark theme with a parallax image background.
+*   CSS is used for animations, such as the glowing effect on buttons and a custom loader animation that simulates a charging battery.
+*   The layout is managed using Flexbox and absolute positioning.
+
+**Client-Side Logic (`main_menu_logic.js`, `lab01.js`):**
+*   **`main_menu_logic.js`:** Contains the logic for the interactive parallax effect on the main menu. It tracks the mouse position and updates the CSS properties (transform, scale, opacity) of the background image layers to create a sense of depth.
+*   **`lab01.js`:** This script is responsible for the battery monitor page.
+    *   It uses `setInterval` to call the `updateBatteryInfo` function every second.
+    *   The `updateBatteryInfo` function makes parallel `axios.get` requests to all the backend API endpoints.
+    *   When the data is received, it updates the content of the corresponding HTML elements on the page.
+    *   It also contains functions to call the `/sleep` and `/hibernate` endpoints when the respective buttons are clicked.
+
+### Chapter 4: Build Process
+
+The project is compiled using a `Makefile`.
+
+*   **Compiler:** `g++` (GNU C++ Compiler).
+*   **Compiler Flags:**
+    *   `-std=c++20`: The project is built using the C++20 standard.
+    *   `-Wall`: Enables all compiler warnings.
+    *   `-IC:\vcpkg\installed\x64-windows\include`: Includes the header files from the vcpkg installation directory, which is where the Crow library is likely located.
+    *   `-I./labs`: Includes the local `labs` directory for header files.
+*   **Linker Flags (`LDFLAGS`):**
+    *   `-lpthread`: Links the POSIX threads library.
+    *   `-lws2_32`, `-lmswsock`: Links the Windows Sockets libraries for networking.
+    *   `-lPowrProf`, `-lsetupapi`: Links the Windows libraries required for power management and device setup functions.
+*   **Process:** The `make all` command compiles `main.cpp` and all `.cpp` files inside the `labs` directory and links them against the specified libraries to create the final executable, `skls_server.exe`. The `make clean` command removes the generated executable.
