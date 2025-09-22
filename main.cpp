@@ -79,6 +79,31 @@ int main()
     // LAB 01 - battery infj end
 
 
+    
+    CROW_ROUTE(app, "/lab02")([](){
+        crow::mustache::context ctx;
+        auto rendered = crow::mustache::load("lab02.html").render(ctx);
+        return rendered;
+    });
+
+    // New endpoint: returns PCI devices info (VID/DID)
+    CROW_ROUTE(app, "/getPCIDevices")([](){
+        crow::json::wvalue response;
+        std::vector<std::pair<std::string, std::string>> devices = EnumeratePCIDevices();
+        std::vector<crow::json::wvalue> deviceArray;
+        int id = 1;
+        for (const auto& dev : devices) {
+            crow::json::wvalue devObj;
+            devObj["id"] = id++;
+            devObj["VenID"] = dev.first;
+            devObj["DevID"] = dev.second;
+            deviceArray.push_back(devObj);
+        }
+        response["devices"] = std::move(deviceArray);
+        response["status"] = 200;
+        return response;
+    });
+
 
     app.port(8080).run();
 }

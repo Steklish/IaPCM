@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAB 02</title>
+    <link rel="stylesheet" href="/static/lab02.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap" rel="stylesheet">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
+</head>
+
+<body>
+    <div class="parallax-container">
+        <img src="/static/Lab_02_bg/BG.png" id="layer-back" alt="Background Layer">
+        <img src="/static/Lab_02_bg/Head.png" id="head" alt="Hue">
+        <img src="/static/Lab_02_bg/FG.png" id="layer-front" alt="Foreground Layer">
+        <img src="/static/Lab_02_bg/vinette.png" id="vin" alt="Foreground Layer">
+        <img src="/static/Lab_02_bg/Dynamin_lights.png" id="glow_dynamic" alt="glow">
+        <img src="/static/Lab_02_bg/Static_lights.png" id="glow_static" alt="glow">
+        
+    </div>
+
+    <div class="main-container">
+        <button onclick="location.href='/'" class="home-button">⌂</button>
+        <!-- From Uiverse.io by Rodrypaladin --> 
+        <div class="card">
+            <div class="card__title" id="card__title">PCI devices</div>
+            <div class="card__data" id="pci-devices">
+                <div class="card__right" id="card__right">
+
+                </div>
+                <div class="card__left" id="card__left">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="cursor-coords" style="visibility: hidden;">Cursor Position: </div>
+    <div id="screen-dimensions" style="visibility: hidden;">Screen Dimensions: </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/static/lab02.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</body>
+
+</html>

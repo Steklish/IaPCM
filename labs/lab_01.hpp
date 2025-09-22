@@ -13,7 +13,6 @@ public:
     std::string getBatteryInfo();
     // time in seconds
     int getTimeLeft(); 
-
     std::string isEco();
 };
 

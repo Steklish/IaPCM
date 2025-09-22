@@ -12,6 +12,42 @@ function updateScreenDimensions() {
 
 updateScreenDimensions();
 
+const lab_1_button = document.getElementById("l1_button");
+const lab_2_button = document.getElementById("l2_button");
+
+let button_list = [lab_1_button, lab_2_button];
+
+
+function hide_except_self(self_id){
+    for (let i = 0; i < button_list.length; i++){
+        if (button_list[i] != self_id){
+            button_list[i].style.display = "none";
+        }
+    }
+}
+
+function show_all_buttons(){
+    for (let i = 0; i < button_list.length; i++){
+        button_list[i].style.display = "block";
+    }
+}
+
+const hide_delay = 300;
+
+for (let i = 0; i < button_list.length; i++){
+    button_list[i].onmouseenter = () => {
+        setTimeout(() => {
+            hide_except_self(button_list[i]);
+        }, hide_delay); // delay in milliseconds
+    };
+
+    button_list[i].onmouseleave = () => {
+        setTimeout(() => {
+            show_all_buttons();
+        }, hide_delay); // delay in milliseconds
+    };
+}
+
 window.addEventListener('resize', updateScreenDimensions);
 
 window.addEventListener('mousemove', (event) => {
