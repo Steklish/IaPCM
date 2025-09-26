@@ -18,7 +18,7 @@ std::string find_vendor_name(unsigned short id) {
 }
 
 static std::pair<std::string, std::string> ExtractVidDid(const std::wstring& hardwareId) {
-    std::string vid;te
+    std::string vid;
     std::string did;
 
     std::wstring firstId = hardwareId.c_str();
