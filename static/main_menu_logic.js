@@ -5,6 +5,7 @@ const rEye = document.getElementById('r_eye');
 const glow = document.getElementById('glow');
 const viniette = document.getElementById('viniette');
 const container = document.querySelector('.parallax-container');
+const l3_icon = document.getElementById('l3_icon');
 
 function updateScreenDimensions() {
     screenLabel.textContent = `Screen Dimensions: ${window.innerWidth}x${window.innerHeight}`;
@@ -14,15 +15,29 @@ updateScreenDimensions();
 
 const lab_1_button = document.getElementById("l1_button");
 const lab_2_button = document.getElementById("l2_button");
+const lab_3_button = document.getElementById("l3_button");
 
 lab_2_button.onmouseenter = () =>
 {
     container.style.filter = "blur(15px)"
+
 }
 
 lab_2_button.onmouseleave = () =>
 {
     container.style.filter = "blur(0px)"
+}
+
+lab_3_button.onmouseenter = () =>
+{
+    container.style.filter = "saturate(0%)"
+    l3_icon.style.opacity = "1"
+}
+
+lab_3_button.onmouseleave = () =>
+{
+    container.style.filter = "saturate(100%)"
+    l3_icon.style.opacity = "0"
 }
 
 let button_list = [lab_1_button, lab_2_button];

@@ -16,6 +16,26 @@ body {
     transition:0.5s;
 }
 
+#l3_icon{
+  transition: opacity 0.5s ease-in-out;
+  z-index: 7;
+  width:100%;
+  height: auto;
+}
+
+.rotate {
+  animation: rotation 20s linear infinite;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .parallax-container img {
     position: absolute;
     top: 0;
@@ -87,7 +107,7 @@ body {
   --black: #000;
 }
 
-.dark-button, .blur-button {
+.dark-button, .blur-button, .no-fx-button {
   padding: 10px 20px;
   text-transform: uppercase;
   border-radius: 800px;
@@ -104,11 +124,14 @@ body {
 }
 
 .blur-button:hover,
-.blur-button:focus {
+.blur-button:focus,
+.no-fx-button:hover,
+.no-fx-button:focus {
   color: white;
   /* background: var(--btn-color-hover); */
   border: 100px solid #00000000;
   font-size: 70px;
+  text-shadow: 0 0 500px rgb(240, 133, 33), 0 0 100px white, 0 0 200px rgb(255, 72, 0);
 }
 .dark-button:hover,
 .dark-button:focus {
@@ -122,3 +145,7 @@ body {
               0 0 100000px var(--black), 0 0 100000px var(--black), 0 0 100000px var(--black), 0 0 100000000px var(--black);
 }
 
+.no-fx-button:hover,
+.no-fx-button:focus{
+  background-color: rgba(0, 0, 0, 0.439);
+}

@@ -80,7 +80,22 @@
         "xtr1common": "cpp",
         "xtree": "cpp",
         "xutility": "cpp",
-        "span": "cpp"
+        "span": "cpp",
+        "_70_exception": "cpp",
+        "_70_new": "cpp",
+        "_70_xstddef": "cpp",
+        "xstddef": "cpp",
+        "cwctype": "cpp",
+        "deque": "cpp",
+        "memory_resource": "cpp",
+        "numeric": "cpp",
+        "string_view": "cpp",
+        "numbers": "cpp",
+        "queue": "cpp",
+        "ranges": "cpp",
+        "semaphore": "cpp",
+        "text_encoding": "cpp",
+        "cinttypes": "cpp"
     },
     "C_Cpp.errorSquiggles": "enabled",
     "C_Cpp.default.compilerPath": "C:/msys64/mingw64/bin/g++.exe"

@@ -105,5 +105,18 @@ int main()
     });
 
 
+    CROW_ROUTE(app, "/lab03")([](){
+        crow::mustache::context ctx;
+        auto rendered = crow::mustache::load("lab03.html").render(ctx);
+        return rendered;
+    });
+
+    CROW_ROUTE(app, "/getStorageDevices")([](){
+        crow::json::wvalue response;
+        response["data"] = RequestInfoStorage("D:\\Study\\ИиУВМ\\WinXP\\shared\\SSD\\SSD\\output.txt");
+        response["status"] = 200;
+        return response;
+    });
+
     app.port(8080).run();
 }

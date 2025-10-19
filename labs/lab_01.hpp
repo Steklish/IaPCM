@@ -1,8 +1,10 @@
-#pragma once
+#ifndef LAB_02
+#define LAB_02
+
 #include <string>
 
 class batteryMonitor{
-public:
+    public:
     batteryMonitor();
     std::string getStatus();
     int getCharge();
@@ -16,3 +18,4 @@ public:
     std::string isEco();
 };
 
+#endif // LAB_02
