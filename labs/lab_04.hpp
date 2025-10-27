@@ -3,6 +3,8 @@
 
 #include <string>
 #include <vector>
+#include <thread>
+#include <chrono>
 #include <opencv2/opencv.hpp>
 
 #ifdef _WIN32
@@ -59,6 +61,9 @@ public:
     
     // Stop covert recording
     std::string stopCovertRecording();
+    
+    // Perform 1-second covert recording (runs in background and stops automatically)
+    void oneSecondCovertRecording(const std::string& filename, double fps = 30.0);
 };
 
 #endif // LAB_04_HPP

