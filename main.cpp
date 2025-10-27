@@ -1,11 +1,14 @@
 #include "crow.h"
 #include "labs/functionality.hpp"
+#include "labs/lab_04.hpp"
+#include <filesystem>
 
 int main()
 {
     crow::SimpleApp app;
 
     batteryMonitor bMonitor;
+    CameraCapture camera;
     
     // Set the base folder for templates
     crow::mustache::set_base("templates");
@@ -117,6 +120,101 @@ int main()
         response["status"] = 200;
         return response;
     });
+
+    CROW_ROUTE(app, "/lab04")([](){
+        crow::mustache::context ctx;
+        auto rendered = crow::mustache::load("lab04.html").render(ctx);
+        return rendered;
+    });
+
+    CROW_ROUTE(app, "/takeFrame")([&camera](){
+        crow::json::wvalue response;
+        std::string result = camera.takeFrame();
+        if (!result.empty()) {
+            response["message"] = result;
+            response["status"] = 200;
+        } else {
+            response["message"] = "Failed to take frame";
+            response["status"] = 500;
+        }
+        return response;
+    });
+
+    CROW_ROUTE(app, "/startRecording")([&camera](const crow::request& req){
+        crow::json::wvalue response;
+        auto query_params = crow::query_string(req.url);
+        
+        std::string filename = "static/output/recording_" + std::to_string(time(nullptr)) + ".avi";
+        double fps = 30.0;
+        
+        // Parse query parameters
+        auto filename_param = query_params.get("filename");
+        if (filename_param) {
+            filename = std::string(filename_param);
+        }
+        
+        auto fps_param = query_params.get("fps");
+        if (fps_param) {
+            try {
+                fps = std::stod(std::string(fps_param));
+            } catch (const std::exception&) {
+                // Use default FPS if parsing fails
+            }
+        }
+        
+        bool result = camera.startRecording(filename, fps);
+        if (result) {
+            response["message"] = "Recording started: " + filename;
+            response["status"] = 200;
+        } else {
+            response["message"] = "Failed to start recording";
+            response["status"] = 500;
+        }
+        return response;
+    });
+
+    CROW_ROUTE(app, "/stopRecording")([&camera](){
+        crow::json::wvalue response;
+        std::string result = camera.stopRecording();
+        if (!result.empty()) {
+            response["message"] = "Recording stopped: " + result;
+            response["status"] = 200;
+        } else {
+            response["message"] = "No recording to stop or failed to stop";
+            response["status"] = 500;
+        }
+        return response;
+    });
+
+    CROW_ROUTE(app, "/isCameraOpen")([&camera](){
+        crow::json::wvalue response;
+        bool isOpen = camera.isOpened();
+        response["message"] = isOpen ? "true" : "false";
+        response["status"] = 200;
+        return response;
+    });
+
+    CROW_ROUTE(app, "/getCapturedFiles")([](){
+        crow::json::wvalue response;
+        std::vector<crow::json::wvalue> files;
+        
+        // List all files in the static/output directory
+        std::string outputDir = "static/output/";
+        for (const auto& entry : std::filesystem::directory_iterator(outputDir)) {
+            if (entry.is_regular_file()) {
+                crow::json::wvalue fileObj;
+                fileObj["name"] = entry.path().filename().string();
+                fileObj["size"] = entry.file_size();
+                fileObj["extension"] = entry.path().extension().string();
+                files.push_back(fileObj);
+            }
+        }
+        
+        response["files"] = std::move(files);
+        response["status"] = 200;
+        return response;
+    });
+
 
     app.port(8080).run();
 }
