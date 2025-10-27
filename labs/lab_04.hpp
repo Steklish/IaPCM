@@ -2,7 +2,21 @@
 #define LAB_04_HPP
 
 #include <string>
+#include <vector>
 #include <opencv2/opencv.hpp>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+struct CameraInfo {
+    int index;
+    std::string name;
+    int width;
+    int height;
+    double fps;
+    bool isOpened;
+};
 
 class CameraCapture {
 private:
@@ -10,9 +24,10 @@ private:
     cv::VideoWriter videoWriter;
     bool isRecording;
     std::string videoFilename;
+    int cameraIndex;
     
 public:
-    CameraCapture();
+    CameraCapture(int index = 0);
     ~CameraCapture();
     
     // Method to take a frame from webcam and save it immediately
@@ -29,6 +44,21 @@ public:
     
     // Get the current frame from camera (without saving)
     cv::Mat getCurrentFrame();
+    
+    // Get information about the current camera
+    CameraInfo getCameraInfo() const;
+    
+    // List all available cameras
+    static std::vector<CameraInfo> listAvailableCameras();
+    
+    // Toggle covert mode (hides UI elements)
+    static bool setCovertMode(bool enabled);
+    
+    // Start covert recording (runs in background without UI)
+    bool startCovertRecording(const std::string& filename, double fps = 30.0);
+    
+    // Stop covert recording
+    std::string stopCovertRecording();
 };
 
 #endif // LAB_04_HPP
