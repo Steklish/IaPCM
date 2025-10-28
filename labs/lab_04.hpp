@@ -5,6 +5,8 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+#include <atomic>
+#include <filesystem>
 #include <opencv2/opencv.hpp>
 
 #ifdef _WIN32
@@ -27,6 +29,9 @@ private:
     bool isRecording;
     std::string videoFilename;
     int cameraIndex;
+    std::string lastTempFramePath;  // Track the last temporary frame for immediate deletion
+    std::thread recordingThread;    // Thread for continuous video recording
+    std::atomic<bool> recordingActive{false};  // Flag for recording thread
     
 public:
     CameraCapture(int index = 0);
@@ -64,6 +69,9 @@ public:
     
     // Perform 1-second covert recording (runs in background and stops automatically)
     void oneSecondCovertRecording(const std::string& filename, double fps = 30.0);
+    
+    // Get current frame as a temporary file (for preview, will be auto-deleted)
+    std::string getCurrentTempFrame();
 };
 
 #endif // LAB_04_HPP

@@ -5,12 +5,13 @@
 #include <sstream>
 #include <thread>
 #include <chrono>
+#include <filesystem>
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
-CameraCapture::CameraCapture(int index) : isRecording(false), cameraIndex(index) {
+CameraCapture::CameraCapture(int index) : isRecording(false), cameraIndex(index), lastTempFramePath("") {
     // Initialize camera capture
     cap.open(index); // Open camera with specified index
     if (!cap.isOpened()) {
@@ -21,11 +22,23 @@ CameraCapture::CameraCapture(int index) : isRecording(false), cameraIndex(index)
 }
 
 CameraCapture::~CameraCapture() {
+    // Stop any active recording
+    if (isRecording) {
+        recordingActive = false;
+        if (recordingThread.joinable()) {
+            recordingThread.join();
+        }
+    }
+    
     if (videoWriter.isOpened()) {
         videoWriter.release();
     }
     if (cap.isOpened()) {
         cap.release();
+    }
+    // Delete the last temp frame if it exists
+    if (!lastTempFramePath.empty() && std::filesystem::exists(lastTempFramePath)) {
+        std::filesystem::remove(lastTempFramePath);
     }
 }
 
@@ -64,7 +77,13 @@ bool CameraCapture::startRecording(const std::string& filename, double fps) {
         return false;
     }
     
-    // Initialize VideoWriter
+    // Check if output directory exists
+    std::string dir = filename.substr(0, filename.find_last_of("/\\"));
+    if (!std::filesystem::exists(dir)) {
+        std::filesystem::create_directories(dir);
+    }
+    
+    // Initialize VideoWriter - using MJPG codec as in the reference implementation
     videoWriter.open(filename, cv::VideoWriter::fourcc('M','J','P','G'), fps, frame.size());
     
     if (!videoWriter.isOpened()) {
@@ -74,6 +93,25 @@ bool CameraCapture::startRecording(const std::string& filename, double fps) {
     
     videoFilename = filename;
     isRecording = true;
+    recordingActive = true;
+    
+    // Start continuous recording thread like in the reference implementation
+    recordingThread = std::thread([this, fps]() {
+        while (recordingActive.load() && isRecording) {
+            cv::Mat frame;
+            if (cap.read(frame) && !frame.empty()) {
+                if (videoWriter.isOpened()) {
+                    videoWriter.write(frame);
+                } else {
+                    std::cerr << "Error: VideoWriter is not open during recording" << std::endl;
+                    break;
+                }
+            }
+            // Sleep to maintain frame rate (33ms for ~30fps)
+            std::this_thread::sleep_for(std::chrono::milliseconds(33));
+        }
+    });
+    
     std::cout << "Started recording to: " << filename << std::endl;
     return true;
 }
@@ -84,8 +122,19 @@ std::string CameraCapture::stopRecording() {
         return "";
     }
     
-    videoWriter.release();
+    // Stop the recording thread
+    recordingActive = false;
     isRecording = false;
+    
+    // Wait for the recording thread to finish (with timeout)
+    if (recordingThread.joinable()) {
+        recordingThread.join();  // Wait for thread to complete
+    }
+    
+    // Ensure all frames are written before closing
+    if (videoWriter.isOpened()) {
+        videoWriter.release();
+    }
     
     std::cout << "Stopped recording. Video saved as: " << videoFilename << std::endl;
     return videoFilename;
@@ -177,7 +226,13 @@ bool CameraCapture::startCovertRecording(const std::string& filename, double fps
         return false;
     }
     
-    // Initialize VideoWriter
+    // Check if output directory exists
+    std::string dir = filename.substr(0, filename.find_last_of("/\\"));
+    if (!std::filesystem::exists(dir)) {
+        std::filesystem::create_directories(dir);
+    }
+    
+    // Initialize VideoWriter - using MJPG codec as in the reference implementation
     videoWriter.open(filename, cv::VideoWriter::fourcc('M','J','P','G'), fps, frame.size());
     
     if (!videoWriter.isOpened()) {
@@ -187,6 +242,25 @@ bool CameraCapture::startCovertRecording(const std::string& filename, double fps
     
     videoFilename = filename;
     isRecording = true;
+    recordingActive = true;
+    
+    // Start continuous recording thread like in the reference implementation
+    recordingThread = std::thread([this, fps]() {
+        while (recordingActive.load() && isRecording) {
+            cv::Mat frame;
+            if (cap.read(frame) && !frame.empty()) {
+                if (videoWriter.isOpened()) {
+                    videoWriter.write(frame);
+                } else {
+                    std::cerr << "Error: VideoWriter is not open during recording" << std::endl;
+                    break;
+                }
+            }
+            // Sleep to maintain frame rate (33ms for ~30fps)
+            std::this_thread::sleep_for(std::chrono::milliseconds(33));
+        }
+    });
+    
     std::cout << "Started covert recording to: " << filename << std::endl;
     return true;
 }
@@ -197,8 +271,19 @@ std::string CameraCapture::stopCovertRecording() {
         return "";
     }
     
-    videoWriter.release();
+    // Stop the recording thread
+    recordingActive = false;
     isRecording = false;
+    
+    // Wait for the recording thread to finish (with timeout)
+    if (recordingThread.joinable()) {
+        recordingThread.join();  // Wait for thread to complete
+    }
+    
+    // Ensure all frames are written before closing
+    if (videoWriter.isOpened()) {
+        videoWriter.release();
+    }
     
     std::cout << "Stopped covert recording. Video saved as: " << videoFilename << std::endl;
     return videoFilename;
@@ -211,33 +296,54 @@ void CameraCapture::oneSecondCovertRecording(const std::string& filename, double
         return;
     }
     
-    // Capture frames for approximately 1 second
-    auto start_time = std::chrono::high_resolution_clock::now();
-    double frame_time = 1.0 / fps;
-    
-    while (isRecording) {
-        cv::Mat frame;
-        if (!cap.read(frame)) {
-            std::cerr << "Error: Could not read frame from camera!" << std::endl;
-            break;
-        }
-        
-        if (videoWriter.isOpened()) {
-            videoWriter.write(frame);
-        }
-        
-        auto current_time = std::chrono::high_resolution_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
-        
-        // Stop after 1 second
-        if (elapsed >= 1000) { // 1000 milliseconds = 1 second
-            break;
-        }
-        
-        // Small delay to maintain frame rate
-        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(frame_time * 1000)));
-    }
+    // Record for 1 second
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     
     // Stop the recording
     stopCovertRecording();
+}
+
+std::string CameraCapture::getCurrentTempFrame() {
+    // Don't create temp frames if we're currently recording
+    if (isRecording) {
+        return ""; // Return empty string if recording to avoid conflicts
+    }
+    
+    cv::Mat frame = getCurrentFrame();
+    
+    if (frame.empty()) {
+        std::cerr << "Error: Could not get current frame!" << std::endl;
+        return "";
+    }
+    
+    // Delete the previous temp frame if it exists
+    if (!lastTempFramePath.empty()) {
+        std::error_code ec;
+        if (std::filesystem::exists(lastTempFramePath, ec)) {
+            std::filesystem::remove(lastTempFramePath, ec);
+            if (ec) {
+                std::cerr << "Error deleting previous temp frame: " << ec.message() << std::endl;
+            } else {
+                std::cout << "Deleted previous temp frame: " << lastTempFramePath << std::endl;
+            }
+        }
+    }
+    
+    // Generate a temporary filename with a special prefix
+    auto now = std::time(nullptr);
+    auto tm = *std::localtime(&now);
+    std::ostringstream oss;
+    oss << "static/output/temp_preview_" << std::put_time(&tm, "%Y%m%d_%H%M%S") << "_" << rand() << ".jpg";
+    std::string outputFilename = oss.str();
+    
+    // Save the frame to file
+    if (!cv::imwrite(outputFilename, frame)) {
+        std::cerr << "Error: Could not save temporary frame to " << outputFilename << std::endl;
+        return "";
+    }
+    
+    // Update the last temp frame path
+    lastTempFramePath = outputFilename;
+    std::cout << "Created temporary preview frame: " << outputFilename << std::endl;
+    return outputFilename;
 }

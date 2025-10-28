@@ -23,6 +23,12 @@ body {
   height: auto;
 }
 
+#cam{
+  transition: opacity 0.5s ease-in-out;
+  z-index: 7;
+  width:100%;
+  height: auto;
+}
 .rotate {
   animation: rotation 20s linear infinite;
 }

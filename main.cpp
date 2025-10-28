@@ -306,6 +306,21 @@ int main()
         return response;
     });
 
+    CROW_ROUTE(app, "/getPreviewFrame")([&camera](){
+        crow::json::wvalue response;
+        std::string result = camera.getCurrentTempFrame(); // Use temporary frame
+        if (!result.empty()) {
+            // Extract just the filename from the path for the URL
+            std::string filename = result.substr(result.find_last_of("/\\") + 1);
+            response["message"] = "/static/output/" + filename;
+            response["status"] = 200;
+        } else {
+            response["message"] = "Failed to get preview frame";
+            response["status"] = 500;
+        }
+        return response;
+    });
+
     CROW_ROUTE(app, "/oneSecondCovertRecording")
     .methods(crow::HTTPMethod::POST, crow::HTTPMethod::GET)
     ([&camera](const crow::request& req){
