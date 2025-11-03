@@ -1,6 +1,7 @@
 #include "crow.h"
 #include "labs/functionality.hpp"
 #include "labs/lab_04.hpp"
+#include "labs/lab_05.hpp"
 #include <filesystem>
 
 #include <filesystem>
@@ -11,6 +12,7 @@ int main()
 
     batteryMonitor bMonitor;
     CameraCapture camera;
+    USBMonitor usbMonitor;
     
     // Ensure output directory exists
     std::string outputDir = "static/output/";
@@ -362,6 +364,83 @@ int main()
         
         response["message"] = "Started 1-second covert recording: " + filename;
         response["status"] = 200;
+        return response;
+    });
+
+    CROW_ROUTE(app, "/lab05")([&usbMonitor](){
+        // Initialize USB monitor if not already done
+        if (!usbMonitor.initialize()) {
+            std::cerr << "Failed to initialize USB monitor" << std::endl;
+        }
+        usbMonitor.startMonitoring();
+        
+        crow::mustache::context ctx;
+        auto rendered = crow::mustache::load("lab05.html").render(ctx);
+        return rendered;
+    });
+
+    CROW_ROUTE(app, "/getUSBDevices")([&usbMonitor](){
+        crow::json::wvalue response;
+        std::vector<USBDeviceInfo> devices = usbMonitor.getConnectedDevices();
+        std::vector<crow::json::wvalue> deviceArray;
+        
+        for (const auto& device : devices) {
+            crow::json::wvalue deviceObj;
+            deviceObj["id"] = device.deviceID;
+            deviceObj["name"] = device.deviceName;
+            deviceObj["drive"] = device.driveLetter;
+            deviceObj["type"] = device.deviceType;
+            deviceObj["mounted"] = device.isMounted;
+            deviceObj["removable"] = device.isRemovable;
+            deviceArray.push_back(deviceObj);
+        }
+        
+        response["devices"] = std::move(deviceArray);
+        response["status"] = 200;
+        return response;
+    });
+
+    CROW_ROUTE(app, "/safelyEjectUSB")
+    .methods(crow::HTTPMethod::POST)
+    ([&usbMonitor](const crow::request& req){
+        crow::json::wvalue response;
+        
+        // Parse the request body to get device ID or drive letter
+        std::string body = req.body;
+        std::string deviceId = body; // Simple implementation - in practice, you'd parse JSON
+        
+        // For now, assuming the body contains the device ID or drive letter
+        bool success = usbMonitor.safelyEjectDevice(deviceId);
+        
+        if (success) {
+            response["message"] = "Successfully safely ejected device: " + deviceId;
+            response["status"] = 200;
+        } else {
+            response["message"] = "Failed to safely eject device: " + deviceId;
+            response["status"] = 500;
+        }
+        return response;
+    });
+
+    CROW_ROUTE(app, "/unsafeEjectUSB")
+    .methods(crow::HTTPMethod::POST)
+    ([&usbMonitor](const crow::request& req){
+        crow::json::wvalue response;
+        
+        // Parse the request body to get device ID or drive letter
+        std::string body = req.body;
+        std::string deviceId = body; // Simple implementation - in practice, you'd parse JSON
+        
+        // For now, assuming the body contains the device ID or drive letter
+        bool success = usbMonitor.unsafeEjectDevice(deviceId);
+        
+        if (success) {
+            response["message"] = "Successfully unsafely ejected device: " + deviceId;
+            response["status"] = 200;
+        } else {
+            response["message"] = "Failed to unsafely eject device: " + deviceId;
+            response["status"] = 500;
+        }
         return response;
     });
 

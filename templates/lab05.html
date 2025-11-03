@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAB 05 - USB Devices</title>
+    <link rel="stylesheet" href="/static/lab05.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap" rel="stylesheet">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
+</head>
+
+<body>
+    <div class="gif-background"></div>
+
+    <div class="main-container">
+        <button onclick="location.href='/'" class="home-button">⌂</button>
+        
+        <!-- USB Monitoring Controls -->
+        <div id="usb-controls" class="usb-controls">
+            <h1>USB Device Monitor</h1>
+            
+            <div class="status-bar">
+                <span id="status-text">Monitoring USB devices...</span>
+                <button id="refresh-btn" class="control-button">Refresh Devices</button>
+            </div>
+            
+            <div id="usb-devices-container">
+                <h2>Connected USB Devices</h2>
+                <div id="usb-devices-list" class="devices-list">
+                    <!-- USB devices will be listed here dynamically -->
+                </div>
+            </div>
+            
+            <div id="activity-log" class="activity-log">
+                <h2>Activity Log</h2>
+                <div id="log-entries" class="log-entries">
+                    <!-- Log entries will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Debugging elements removed as parallax effect is replaced with static GIF background -->
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/static/lab05.js"></script>
+</body>
+
+</html>
