@@ -14,10 +14,46 @@ function updateScreenDimensions() {
 
 updateScreenDimensions();
 
+// Check if we need to show the cam.gif (e.g., after covert recording)
+function getUrlParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
 const lab_1_button = document.getElementById("l1_button");
 const lab_2_button = document.getElementById("l2_button");
 const lab_3_button = document.getElementById("l3_button");
 const lab_4_button = document.getElementById("l4_button");
+
+// If showCamGif parameter is present in the URL, show the cam.gif for 5 seconds
+if (getUrlParameter('showCamGif') === '1') {
+    // Update the cam gif's opacity to make it visible
+    const camGif = document.getElementById('cam');
+    if (camGif) {
+        // Force the cam gif to be visible during the animation period, overriding any other changes
+        camGif.style.opacity = "1";
+        
+        // Set a flag to indicate the cam.gif is showing due to covert recording
+        window.covertCamShowing = true;
+        
+        // Temporarily set a flag to prevent hover effects during the animation
+        window.preventHoverEffect = true;
+        
+        // Hide the cam.gif after 5 seconds and restore functionality
+        setTimeout(() => {
+            // Ensure the opacity is set to 0 after the timeout, regardless of other events
+            if (camGif) {
+                camGif.style.opacity = "0";
+            }
+            window.covertCamShowing = false; // Clear the flag
+            window.preventHoverEffect = false; // Allow hover effects again
+        }, 5000);
+    }
+    
+    // Remove the parameter from the URL without reloading the page
+    const newUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, newUrl);
+}
 
 lab_2_button.onmouseenter = () =>
 {
@@ -45,12 +81,18 @@ lab_3_button.onmouseleave = () =>
 
 lab_4_button.onmouseenter = () =>
 {
-    l4_icon.style.opacity = "1"
+    // Only change opacity if not currently showing covert recording animation or preventing hover effects
+    if (!window.covertCamShowing && !window.preventHoverEffect) {
+        l4_icon.style.opacity = "1";
+    }
 }
 
 lab_4_button.onmouseleave = () =>
 {
-    l4_icon.style.opacity = "0"
+    // Only change opacity if not currently showing covert recording animation or preventing hover effects
+    if (!window.covertCamShowing && !window.preventHoverEffect) {
+        l4_icon.style.opacity = "0";
+    }
 }
 
 let button_list = [lab_1_button, lab_2_button];

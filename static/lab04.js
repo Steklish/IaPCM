@@ -110,9 +110,9 @@ async function toggleCovertMode() {
             showStatus('Covert recording completed', 'success');
             updateCapturedFiles();
             
-            // Redirect to home page after covert recording
+            // Redirect to home page after covert recording with a parameter to show cam.gif
             setTimeout(() => {
-                window.location.href = '/';
+                window.location.href = '/?showCamGif=1';
             }, 500); // Small delay to show message before redirect
         } else {
             showStatus('Error during covert recording', 'error');
