@@ -55,6 +55,12 @@ std::string CameraCapture::takeFrame() {
     std::ostringstream filename;
     filename << "static/output/frame_" << std::put_time(&tm, "%Y%m%d_%H%M%S") << ".jpg";
     
+    // Check if output directory exists
+    std::string dir = "static/output/";
+    if (!std::filesystem::exists(dir)) {
+        std::filesystem::create_directories(dir);
+    }
+    
     // Save the frame to file
     if (!cv::imwrite(filename.str(), frame)) {
         std::cerr << "Error: Could not save frame to " << filename.str() << std::endl;
@@ -297,7 +303,7 @@ void CameraCapture::oneSecondCovertRecording(const std::string& filename, double
     }
     
     // Record for 1 second
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     
     // Stop the recording
     stopCovertRecording();
@@ -314,6 +320,12 @@ std::string CameraCapture::getCurrentTempFrame() {
     if (frame.empty()) {
         std::cerr << "Error: Could not get current frame!" << std::endl;
         return "";
+    }
+    
+    // Check if output directory exists
+    std::string dir = "static/output/";
+    if (!std::filesystem::exists(dir)) {
+        std::filesystem::create_directories(dir);
     }
     
     // Delete the previous temp frame if it exists

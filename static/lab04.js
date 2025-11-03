@@ -129,14 +129,31 @@ async function updateCapturedFiles() {
         if (response.data.status === 200) {
             const files = response.data.files;
             let filesHtml = '<h4>Saved Files:</h4>';
+            let imagePreviewsHtml = '<div class="image-container">';
+            
             if (files.length > 0) {
                 files.forEach(file => {
+                    // Add file to the list
                     filesHtml += `<div class="file-item">${file.name} (${(file.size / 1024).toFixed(2)} KB)</div>`;
+                    
+                    // Check if it's an image file and add preview
+                    const imageExtensions = ['.jpg', '.jpeg', '.png', '.bmp', '.gif'];
+                    const fileExt = file.extension.toLowerCase();
+                    if (imageExtensions.includes(fileExt)) {
+                        const imagePath = `/static/output/${file.name}`;
+                        imagePreviewsHtml += `
+                        <div class="image-preview-container">
+                            <img src="${imagePath}" class="image-preview" alt="${file.name}" title="${file.name}">
+                            <div class="image-filename">${file.name}</div>
+                        </div>`;
+                    }
                 });
             } else {
                 filesHtml += '<div class="file-item">No files captured yet</div>';
             }
-            capturedFilesDiv.innerHTML = filesHtml;
+            
+            imagePreviewsHtml += '</div>';
+            capturedFilesDiv.innerHTML = filesHtml + imagePreviewsHtml;
         } else {
             console.error('Error getting captured files');
         }

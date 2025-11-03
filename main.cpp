@@ -3,12 +3,20 @@
 #include "labs/lab_04.hpp"
 #include <filesystem>
 
+#include <filesystem>
+
 int main()
 {
     crow::SimpleApp app;
 
     batteryMonitor bMonitor;
     CameraCapture camera;
+    
+    // Ensure output directory exists
+    std::string outputDir = "static/output/";
+    if (!std::filesystem::exists(outputDir)) {
+        std::filesystem::create_directories(outputDir);
+    }
     
     // Set the base folder for templates
     crow::mustache::set_base("templates");
