@@ -291,6 +291,36 @@ body {
 }
 
 /* Cursor coordinates and screen dimensions */
+/* Goodbye GIF Animation */
+.goodbye-gif {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 20px;
+  padding: 20px;
+  animation: fadeInOut 3s ease-in-out forwards;
+}
+
+.goodbye-gif img {
+  max-width: 300px;
+  max-height: 300px;
+  width: auto;
+  height: auto;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+}
+
 /* Debug elements removed as parallax effect is replaced with static GIF background */
 
 /* Responsive Design */
