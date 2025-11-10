@@ -444,6 +444,67 @@ int main()
         return response;
     });
 
+    CROW_ROUTE(app, "/disableInputDevice")
+    .methods(crow::HTTPMethod::POST)
+    ([&usbMonitor](const crow::request& req){
+        crow::json::wvalue response;
+
+        // Parse the request body to get device type
+        std::string body = req.body;
+        std::string deviceType = body; // Expecting "mouse" or "keyboard"
+
+        bool success = usbMonitor.disableInputDevice(deviceType);
+
+        if (success) {
+            response["message"] = "Successfully disabled " + deviceType;
+            response["status"] = 200;
+        } else {
+            response["message"] = "Failed to disable " + deviceType;
+            response["status"] = 500;
+        }
+        return response;
+    });
+
+    CROW_ROUTE(app, "/enableInputDevice")
+    .methods(crow::HTTPMethod::POST)
+    ([&usbMonitor](const crow::request& req){
+        crow::json::wvalue response;
+
+        // Parse the request body to get hardware ID
+        std::string body = req.body;
+        std::string hardwareId = body; // Hardware ID of the device to enable
+
+        bool success = usbMonitor.enableInputDevice(hardwareId);
+
+        if (success) {
+            response["message"] = "Successfully enabled device with ID: " + hardwareId;
+            response["status"] = 200;
+        } else {
+            response["message"] = "Failed to enable device with ID: " + hardwareId;
+            response["status"] = 500;
+        }
+        return response;
+    });
+
+    CROW_ROUTE(app, "/getInputDevices")
+    ([&usbMonitor](){
+        crow::json::wvalue response;
+        std::vector<USBDeviceInfo> devices = usbMonitor.getConnectedInputDevices();
+        std::vector<crow::json::wvalue> deviceArray;
+
+        for (const auto& device : devices) {
+            crow::json::wvalue deviceObj;
+            deviceObj["id"] = device.deviceID;
+            deviceObj["name"] = device.deviceName;
+            deviceObj["type"] = device.deviceType;
+            deviceObj["class"] = device.deviceClass;
+            deviceArray.push_back(deviceObj);
+        }
+
+        response["devices"] = std::move(deviceArray);
+        response["status"] = 200;
+        return response;
+    });
 
     app.port(8080).run();
 }
