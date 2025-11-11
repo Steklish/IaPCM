@@ -1,0 +1,32 @@
+2025-11-11 10:39:21 → РУЧНОЕ ОТКЛЮЧЕНИЕ: Запрос отключения USB-мыши
+2025-11-11 10:39:21   Способ 1: Ищем USB HID мышь через SetupDiGetClassDevs:
+2025-11-11 10:39:21   [DEBUG] Проверяю HID устройство #0: HID-compliant mouse (hid\msft0001&col01\4&3b114b9d&0&0000)
+2025-11-11 10:39:21   [DEBUG] Проверяю HID устройство #1: HID-compliant touch pad (hid\msft0001&col02\4&3b114b9d&0&0001)
+2025-11-11 10:39:21   [DEBUG] Проверяю HID устройство #2: Microsoft Input Configuration Device (hid\msft0001&col03\4&3b114b9d&0&0002)
+2025-11-11 10:39:21   [DEBUG] Проверяю HID устройство #3: HID-compliant vendor-defined device (hid\msft0001&col04\4&3b114b9d&0&0003)
+2025-11-11 10:39:21   [DEBUG] Проверяю HID устройство #4: HID-compliant mouse (hid\vid_3151&pid_3020&mi_01&col01\8&34a67f2&0&0000)
+2025-11-11 10:39:21   [DEBUG] Проверяю родительское устройство (уровень 0): USB\VID_3151&PID_3020&MI_01\7&3416C6F3&1&0001
+2025-11-11 10:39:21   ✓ Найдено USB устройство для мыши: USB\VID_3151&PID_3020&MI_01\7&3416C6F3&1&0001
+2025-11-11 10:39:21   [DEBUG] Статус устройства: status=0x25174026, problem=0x0
+2025-11-11 10:39:21   Пробуем отключить USB мышь: DevInst=14
+2025-11-11 10:39:21   CM_Disable_DevNode вернул код: 0
+2025-11-11 10:39:21 ✓ РУЧНОЕ ОТКЛЮЧЕНИЕ: USB мышь успешно отключена через CM_Disable_DevNode
+2025-11-11 11:13:54 Attempting to safely eject drive E:
+2025-11-11 11:13:54 Volume locked successfully
+2025-11-11 11:13:54 Volume dismounted successfully
+2025-11-11 11:13:54 Drive E: ejected successfully!
+2025-11-11 11:14:12 → РУЧНОЕ ИЗВЛЕЧЕНИЕ: Запрос безопасного извлечения диска E:
+2025-11-11 11:14:12   Найдено устройство диска через Disk GUID: DevInst=10
+2025-11-11 11:14:12   Найдено устройство диска: DevInst=10
+2025-11-11 11:14:12   Способ 1: Ищем USB устройство, поднимаясь по дереву от диска:
+2025-11-11 11:14:12   [DEBUG] Проверяю родительское устройство (уровень 0): USB\VID_0DD8&PID_3708\FC2300276DE7720E
+2025-11-11 11:14:12   ✓ Найдено USB устройство в дереве: USB\VID_0DD8&PID_3708\FC2300276DE7720E
+2025-11-11 11:14:12   Пробуем извлечь USBSTOR устройство: DevInst=13
+2025-11-11 11:14:12   CM_Request_Device_Eject для USBSTOR вернул код: 0
+2025-11-11 11:14:12 ✓ РУЧНОЕ БЕЗОПАСНОЕ ИЗВЛЕЧЕНИЕ: Диск E: успешно извлечён через CM_Request_Device_Eject
+2025-11-11 11:14:30 Attempting to safely eject drive E:
+2025-11-11 11:14:30 Volume locked successfully
+2025-11-11 11:14:30 Volume dismounted successfully
+2025-11-11 11:14:30 Drive E: ejected successfully!
+2025-11-11 11:15:03 Attempting to safely eject drive E:
+2025-11-11 11:15:03 Failed to lock volume: 5

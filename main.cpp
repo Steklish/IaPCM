@@ -3,8 +3,29 @@
 #include "labs/lab_04.hpp"
 #include "labs/lab_05.hpp"
 #include <filesystem>
+#include <algorithm>
+#include <cctype>
+#include <iostream>
 
 #include <filesystem>
+
+// Helper function to URL-decode a string
+std::string url_decode(const std::string& encoded) {
+    std::string decoded;
+    for (size_t i = 0; i < encoded.length(); ++i) {
+        if (encoded[i] == '%' && i + 2 < encoded.length()) {
+            std::string hex = encoded.substr(i + 1, 2);
+            char c = static_cast<char>(std::stoi(hex, nullptr, 16));
+            decoded += c;
+            i += 2; // Skip the next two characters
+        } else if (encoded[i] == '+') {
+            decoded += ' ';
+        } else {
+            decoded += encoded[i];
+        }
+    }
+    return decoded;
+}
 
 int main()
 {
@@ -379,132 +400,247 @@ int main()
         return rendered;
     });
 
-    CROW_ROUTE(app, "/getUSBDevices")([&usbMonitor](){
-        crow::json::wvalue response;
-        std::vector<USBDeviceInfo> devices = usbMonitor.getConnectedDevices();
-        std::vector<crow::json::wvalue> deviceArray;
-        
-        for (const auto& device : devices) {
-            crow::json::wvalue deviceObj;
-            deviceObj["id"] = device.deviceID;
-            deviceObj["name"] = device.deviceName;
-            deviceObj["drive"] = device.driveLetter;
-            deviceObj["type"] = device.deviceType;
-            deviceObj["mounted"] = device.isMounted;
-            deviceObj["removable"] = device.isRemovable;
-            deviceArray.push_back(deviceObj);
-        }
-        
-        response["devices"] = std::move(deviceArray);
-        response["status"] = 200;
-        return response;
-    });
+    // USB Drive Ejection endpoint (POST only)
+    CROW_ROUTE(app, "/ejectUsbDrive")
+        .methods(crow::HTTPMethod::POST)
+        ([&usbMonitor](const crow::request& req){
+            std::cout << "[DEBUG] ejectUsbDrive endpoint called" << std::endl;
+            std::cout << "[DEBUG] Request body: " << req.body << std::endl;
+            crow::json::wvalue response;
+            
+            std::string drive_letter;
+            
+            try {
+                // The body contains multipart form data, need to extract the drive parameter manually
+                std::string body = req.body;
+                std::cout << "[DEBUG] Raw body size: " << body.length() << std::endl;
+                
+                // Look for the drive parameter in the multipart form data
+                size_t drive_pos = body.find("name=\"drive\"");
+                if (drive_pos != std::string::npos) {
+                    // Find the end of the header, which is followed by two newlines
+                    size_t header_end = body.find("\r\n\r\n", drive_pos);
+                    if (header_end != std::string::npos) {
+                        header_end += 4; // Skip the \r\n\r\n
+                        // The value should be after the header until the next boundary
+                        size_t boundary_start = body.find("--", header_end);
+                        if (boundary_start != std::string::npos) {
+                            // Extract the drive letter value
+                            std::string value = body.substr(header_end, boundary_start - header_end);
+                            // Trim whitespace
+                            value.erase(0, value.find_first_not_of(" \t\r\n"));
+                            value.erase(value.find_last_not_of(" \t\r\n") + 1);
+                            drive_letter = value;
+                            std::cout << "[DEBUG] Found drive parameter: '" << drive_letter << "'" << std::endl;
+                        } else {
+                            // If no boundary found, take until the end
+                            std::string value = body.substr(header_end);
+                            value.erase(0, value.find_first_not_of(" \t\r\n"));
+                            value.erase(value.find_last_not_of(" \t\r\n") + 1);
+                            drive_letter = value;
+                            std::cout << "[DEBUG] Found drive parameter: '" << drive_letter << "'" << std::endl;
+                        }
+                    }
+                } else {
+                    std::cout << "[DEBUG] No drive parameter found in body" << std::endl;
+                    
+                    // Also try parsing as regular form data in case the content-type is different
+                    auto body_query = crow::query_string(body);
+                    auto drive_param = body_query.get("drive");
+                    if (drive_param) {
+                        drive_letter = std::string(drive_param);
+                        std::cout << "[DEBUG] Found drive parameter from form parsing: " << drive_letter << std::endl;
+                    }
+                }
+            } catch (...) {
+                std::cout << "[DEBUG] Exception occurred while parsing body" << std::endl;
+                // If parsing fails for any reason, return error
+            }
+            
+            if (drive_letter.empty()) {
+                response["message"] = "Drive letter parameter is required.";
+                response["status"] = 400;
+                return response;
+            }
 
-    CROW_ROUTE(app, "/safelyEjectUSB")
-    .methods(crow::HTTPMethod::POST)
-    ([&usbMonitor](const crow::request& req){
-        crow::json::wvalue response;
-        
-        // Parse the request body to get device ID or drive letter
-        std::string body = req.body;
-        std::string deviceId = body; // Simple implementation - in practice, you'd parse JSON
-        
-        // For now, assuming the body contains the device ID or drive letter
-        bool success = usbMonitor.safelyEjectDevice(deviceId);
-        
-        if (success) {
-            response["message"] = "Successfully safely ejected device: " + deviceId;
+            // URL decode the drive letter in case it's encoded
+            drive_letter = url_decode(drive_letter);
+            
+            if (drive_letter.length() != 1) {
+                response["message"] = "Invalid drive letter format: " + drive_letter;
+                response["status"] = 400;
+                return response;
+            }
+
+            char drive = std::toupper(drive_letter[0]);
+            if (drive < 'A' || drive > 'Z') {
+                response["message"] = "Invalid drive letter: " + drive_letter;
+                response["status"] = 400;
+                return response;
+            }
+
+            bool result = usbMonitor.ejectUsbDrive(drive);
+            if (result) {
+                response["message"] = "Successfully ejected drive " + std::string(1, drive);
+                response["status"] = 200;
+            } else {
+                response["message"] = "Failed to eject drive " + std::string(1, drive);
+                response["status"] = 500;
+            }
+            return response;
+        });
+
+    // USB Drive Ejection via CM API endpoint (POST only)
+    CROW_ROUTE(app, "/ejectUsbDriveManual")
+        .methods(crow::HTTPMethod::POST)
+        ([&usbMonitor](const crow::request& req){
+            std::cout << "[DEBUG] ejectUsbDriveManual endpoint called" << std::endl;
+            std::cout << "[DEBUG] Request body: " << req.body << std::endl;
+            crow::json::wvalue response;
+
+            std::string drive_letter;
+
+            try {
+                // The body contains multipart form data, need to extract the drive parameter manually
+                std::string body = req.body;
+                std::cout << "[DEBUG] Raw body size: " << body.length() << std::endl;
+                
+                // Look for the drive parameter in the multipart form data
+                size_t drive_pos = body.find("name=\"drive\"");
+                if (drive_pos != std::string::npos) {
+                    // Find the end of the header, which is followed by two newlines
+                    size_t header_end = body.find("\r\n\r\n", drive_pos);
+                    if (header_end != std::string::npos) {
+                        header_end += 4; // Skip the \r\n\r\n
+                        // The value should be after the header until the next boundary
+                        size_t boundary_start = body.find("--", header_end);
+                        if (boundary_start != std::string::npos) {
+                            // Extract the drive letter value
+                            std::string value = body.substr(header_end, boundary_start - header_end);
+                            // Trim whitespace
+                            value.erase(0, value.find_first_not_of(" \t\r\n"));
+                            value.erase(value.find_last_not_of(" \t\r\n") + 1);
+                            drive_letter = value;
+                            std::cout << "[DEBUG] Found drive parameter: '" << drive_letter << "'" << std::endl;
+                        } else {
+                            // If no boundary found, take until the end
+                            std::string value = body.substr(header_end);
+                            value.erase(0, value.find_first_not_of(" \t\r\n"));
+                            value.erase(value.find_last_not_of(" \t\r\n") + 1);
+                            drive_letter = value;
+                            std::cout << "[DEBUG] Found drive parameter: '" << drive_letter << "'" << std::endl;
+                        }
+                    }
+                } else {
+                    std::cout << "[DEBUG] No drive parameter found in body" << std::endl;
+                    
+                    // Also try parsing as regular form data in case the content-type is different
+                    auto body_query = crow::query_string(body);
+                    auto drive_param = body_query.get("drive");
+                    if (drive_param) {
+                        drive_letter = std::string(drive_param);
+                        std::cout << "[DEBUG] Found drive parameter from form parsing: " << drive_letter << std::endl;
+                    }
+                }
+            } catch (...) {
+                std::cout << "[DEBUG] Exception occurred while parsing body" << std::endl;
+                // If parsing fails for any reason, return error
+            }
+            
+            if (drive_letter.empty()) {
+                response["message"] = "Drive letter parameter is required.";
+                response["status"] = 400;
+                return response;
+            }
+
+            // URL decode the drive letter in case it's encoded
+            drive_letter = url_decode(drive_letter);
+            
+            if (drive_letter.length() != 1) {
+                response["message"] = "Invalid drive letter format: " + drive_letter;
+                response["status"] = 400;
+                return response;
+            }
+
+            char drive = std::toupper(drive_letter[0]);
+            if (drive < 'A' || drive > 'Z') {
+                response["message"] = "Invalid drive letter: " + drive_letter;
+                response["status"] = 400;
+                return response;
+            }
+
+            int result = usbMonitor.ejectUsbDriveManual(drive);
+            if (result == 0) {
+                response["message"] = "Successfully ejected drive " + std::string(1, drive) + " via CM API";
+                response["status"] = 200;
+            } else {
+                response["message"] = "Failed to eject drive " + std::string(1, drive) + " via CM API, error code: " + std::to_string(result);
+                response["status"] = 500;
+            }
+            return response;
+        });
+
+    // Disable USB Mouse endpoint
+    CROW_ROUTE(app, "/disableUsbMouse")
+        .methods(crow::HTTPMethod::POST)
+        ([&usbMonitor](){
+            std::cout << "[DEBUG] disableUsbMouse endpoint called" << std::endl;
+            crow::json::wvalue response;
+            int result = usbMonitor.disableUsbMouseManual();
+            if (result == 0) {
+                response["message"] = "Successfully disabled USB mouse";
+                response["status"] = 200;
+            } else {
+                response["message"] = "Failed to disable USB mouse, error code: " + std::to_string(result);
+                response["status"] = 500;
+            }
+            return response;
+        });
+
+    // List USB drives endpoint
+    CROW_ROUTE(app, "/listUsbDrives")
+        .methods(crow::HTTPMethod::GET)
+        ([&usbMonitor](){
+            std::cout << "[DEBUG] listUsbDrives endpoint called" << std::endl;
+            crow::json::wvalue response;
+            std::vector<char> drives = usbMonitor.listRemovableDrives();
+            
+            std::vector<crow::json::wvalue> driveArray;
+            for (char d : drives) {
+                crow::json::wvalue driveObj;
+                driveObj["letter"] = std::string(1, d);
+                driveObj["path"] = std::string(1, d) + ":\\";
+                driveArray.push_back(driveObj);
+            }
+            
+            response["drives"] = std::move(driveArray);
             response["status"] = 200;
-        } else {
-            response["message"] = "Failed to safely eject device: " + deviceId;
-            response["status"] = 500;
-        }
-        return response;
-    });
+            return response;
+        });
 
-    CROW_ROUTE(app, "/unsafeEjectUSB")
-    .methods(crow::HTTPMethod::POST)
-    ([&usbMonitor](const crow::request& req){
-        crow::json::wvalue response;
-        
-        // Parse the request body to get device ID or drive letter
-        std::string body = req.body;
-        std::string deviceId = body; // Simple implementation - in practice, you'd parse JSON
-        
-        // For now, assuming the body contains the device ID or drive letter
-        bool success = usbMonitor.unsafeEjectDevice(deviceId);
-        
-        if (success) {
-            response["message"] = "Successfully unsafely ejected device: " + deviceId;
+    // List input devices endpoint
+    CROW_ROUTE(app, "/listInputDevices")
+        .methods(crow::HTTPMethod::GET)
+        ([&usbMonitor](){
+            std::cout << "[DEBUG] listInputDevices endpoint called" << std::endl;
+            crow::json::wvalue response;
+            std::vector<InputDevice> devices = usbMonitor.listInputDevices();
+            
+            std::vector<crow::json::wvalue> deviceArray;
+            for (const auto& device : devices) {
+                crow::json::wvalue deviceObj;
+                deviceObj["name"] = device.name;
+                deviceObj["type"] = device.type;
+                deviceObj["vid"] = device.vid;
+                deviceObj["pid"] = device.pid;
+                deviceObj["connected"] = device.connected;
+                deviceArray.push_back(deviceObj);
+            }
+            
+            response["devices"] = std::move(deviceArray);
             response["status"] = 200;
-        } else {
-            response["message"] = "Failed to unsafely eject device: " + deviceId;
-            response["status"] = 500;
-        }
-        return response;
-    });
-
-    CROW_ROUTE(app, "/disableInputDevice")
-    .methods(crow::HTTPMethod::POST)
-    ([&usbMonitor](const crow::request& req){
-        crow::json::wvalue response;
-
-        // Parse the request body to get device type
-        std::string body = req.body;
-        std::string deviceType = body; // Expecting "mouse" or "keyboard"
-
-        bool success = usbMonitor.disableInputDevice(deviceType);
-
-        if (success) {
-            response["message"] = "Successfully disabled " + deviceType;
-            response["status"] = 200;
-        } else {
-            response["message"] = "Failed to disable " + deviceType;
-            response["status"] = 500;
-        }
-        return response;
-    });
-
-    CROW_ROUTE(app, "/enableInputDevice")
-    .methods(crow::HTTPMethod::POST)
-    ([&usbMonitor](const crow::request& req){
-        crow::json::wvalue response;
-
-        // Parse the request body to get hardware ID
-        std::string body = req.body;
-        std::string hardwareId = body; // Hardware ID of the device to enable
-
-        bool success = usbMonitor.enableInputDevice(hardwareId);
-
-        if (success) {
-            response["message"] = "Successfully enabled device with ID: " + hardwareId;
-            response["status"] = 200;
-        } else {
-            response["message"] = "Failed to enable device with ID: " + hardwareId;
-            response["status"] = 500;
-        }
-        return response;
-    });
-
-    CROW_ROUTE(app, "/getInputDevices")
-    ([&usbMonitor](){
-        crow::json::wvalue response;
-        std::vector<USBDeviceInfo> devices = usbMonitor.getConnectedInputDevices();
-        std::vector<crow::json::wvalue> deviceArray;
-
-        for (const auto& device : devices) {
-            crow::json::wvalue deviceObj;
-            deviceObj["id"] = device.deviceID;
-            deviceObj["name"] = device.deviceName;
-            deviceObj["type"] = device.deviceType;
-            deviceObj["class"] = device.deviceClass;
-            deviceArray.push_back(deviceObj);
-        }
-
-        response["devices"] = std::move(deviceArray);
-        response["status"] = 200;
-        return response;
-    });
+            return response;
+        });
 
     app.port(8080).run();
 }

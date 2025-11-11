@@ -1,221 +1,253 @@
-// Initialize device tracking before functions are defined
-let previousDevices = [];
+// lab05.js - JavaScript for USB device management
 
-// Add log entry
-function addLogEntry(message, type = 'info') {
-    const logEntries = document.getElementById('log-entries');
-    if (!logEntries) return;
+document.addEventListener('DOMContentLoaded', function() {
+    // Get references to the buttons and other UI elements
+    const disableMouseBtn = document.getElementById('disable-mouse-btn');
+    const listDrivesBtn = document.getElementById('list-drives-btn');
+    const refreshBtn = document.getElementById('refresh-btn');
+    const refreshInputDevicesBtn = document.getElementById('refresh-input-devices-btn');
+    const disableKeyboardBtn = document.getElementById('disable-keyboard-btn');
     
-    const timestamp = new Date().toLocaleTimeString();
-    const logEntry = document.createElement('div');
-    logEntry.className = `log-entry ${type}`;
-    logEntry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
-    logEntries.prepend(logEntry); // Add to top of log
+    // Set up event listeners
+    if (disableMouseBtn) {
+        disableMouseBtn.addEventListener('click', disableUsbMouse);
+    }
     
-    // Limit log entries to prevent excessive DOM elements
-    if (logEntries.children.length > 50) {
-        logEntries.removeChild(logEntries.lastChild);
+    if (listDrivesBtn) {
+        listDrivesBtn.addEventListener('click', listUsbDrives);
+    }
+    
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', listUsbDrives);
+    }
+    
+    if (refreshInputDevicesBtn) {
+        refreshInputDevicesBtn.addEventListener('click', listInputDevices);
+    }
+    
+    if (disableKeyboardBtn) {
+        disableKeyboardBtn.addEventListener('click', disableKeyboard);
+    }
+    
+    // Load initial device lists
+    listUsbDrives();
+    listInputDevices();
+});
+
+// Function to disable USB mouse
+async function disableUsbMouse() {
+    try {
+        const response = await fetch('/disableUsbMouse', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        addToActivityLog(data.message);
+        
+        if (data.status === 200) {
+            alert('USB Mouse disabled successfully!');
+        } else {
+            alert('Error: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error disabling USB mouse:', error);
+        addToActivityLog('Error disabling USB mouse: ' + error.message);
     }
 }
 
-// Display USB devices in the list - original function
-function originalDisplayUSBDevices(devices) {
-    const usbDevicesList = document.getElementById('usb-devices-list');
-    if (!usbDevicesList) return;
-    
-    // Clear current list
-    usbDevicesList.innerHTML = '';
+// Function to list USB drives
+async function listUsbDrives() {
+    try {
+        const response = await fetch('/listUsbDrives', {
+            method: 'GET'
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 200) {
+            displayUsbDrives(data.drives);
+            addToActivityLog('USB drives listed successfully');
+        } else {
+            addToActivityLog('Error listing USB drives: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error listing USB drives:', error);
+        addToActivityLog('Error listing USB drives: ' + error.message);
+    }
+}
+
+// Function to list input devices
+async function listInputDevices() {
+    try {
+        const response = await fetch('/listInputDevices', {
+            method: 'GET'
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 200) {
+            displayInputDevices(data.devices);
+            addToActivityLog('Input devices listed successfully');
+        } else {
+            addToActivityLog('Error listing input devices: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error listing input devices:', error);
+        addToActivityLog('Error listing input devices: ' + error.message);
+    }
+}
+
+// Function to display input devices in the UI
+function displayInputDevices(devices) {
+    const container = document.getElementById('input-devices-list');
+    if (!container) return;
     
     if (devices.length === 0) {
-        usbDevicesList.innerHTML = '<p class="no-devices">No USB devices connected</p>';
+        container.innerHTML = '<p>No input devices found</p>';
         return;
     }
     
+    let html = '<ul class="input-device-list">';
     devices.forEach(device => {
-        const deviceElement = document.createElement('div');
-        deviceElement.className = 'device-item';
-        
-        deviceElement.innerHTML = `
-            <div class="device-header">
-                <span class="device-name">${device.name || 'Unknown Device'}</span>
-                <span class="device-status ${device.mounted ? 'connected' : 'disconnected'}">
-                    ${device.mounted ? 'Connected' : 'Disconnected'}
+        html += `
+        <li class="input-device-item">
+            <div class="device-info">
+                <span class="device-name">${device.name}</span>
+                <span class="device-type">[${device.type}]</span>
+                <span class="device-vidpid">VID: ${device.vid}, PID: ${device.pid}</span>
+            </div>
+            <div class="device-status">
+                <span class="status-indicator ${device.connected ? 'connected' : 'disconnected'}">
+                    ${device.connected ? '● Connected' : '○ Disconnected'}
                 </span>
             </div>
-            <div class="device-details">
-                <p><strong>Drive:</strong> ${device.drive || 'N/A'}</p>
-                <p><strong>Type:</strong> ${device.type || 'N/A'}</p>
-                <p><strong>ID:</strong> ${device.id || 'N/A'}</p>
-                <div class="device-actions">
-                    <button class="eject-btn safe-eject" onclick="safelyEjectDevice('${device.id}')">
-                        Safely Eject
-                    </button>
-                    <button class="eject-btn unsafe-eject" onclick="unsafeEjectDevice('${device.id}')">
-                        Unsafe Eject
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        usbDevicesList.appendChild(deviceElement);
+        </li>`;
     });
+    html += '</ul>';
+    
+    container.innerHTML = html;
 }
 
-// Refresh USB devices list
-async function refreshUSBDevices() {
-    const statusText = document.getElementById('status-text');
-    if (!statusText) return;
+// Function to display USB drives in the UI
+function displayUsbDrives(drives) {
+    const container = document.getElementById('usb-devices-list');
+    if (!container) return;
     
+    if (drives.length === 0) {
+        container.innerHTML = '<p>No removable drives found</p>';
+        return;
+    }
+    
+    let html = '<ul class="drive-list">';
+    drives.forEach(drive => {
+        html += `
+        <li class="drive-item">
+            <span class="drive-letter">${drive.letter}</span>
+            <span class="drive-path">${drive.path}</span>
+            <button class="eject-btn" onclick="ejectUsbDrive('${drive.letter}')">Eject</button>
+            <button class="eject-cm-btn" onclick="ejectUsbDriveManual('${drive.letter}')">Eject (CM)</button>
+        </li>`;
+    });
+    html += '</ul>';
+    
+    container.innerHTML = html;
+}
+
+// Function to eject USB drive
+async function ejectUsbDrive(driveLetter) {
+    if (!confirm(`Are you sure you want to eject drive ${driveLetter}:?`)) {
+        return;
+    }
+    
+    driveLetter = driveLetter[0]
+    console.log(driveLetter)
     try {
-        statusText.textContent = 'Refreshing USB devices...';
-        const response = await axios.get('/getUSBDevices');
+        const formData = new FormData();
+        formData.append('drive', driveLetter);
         
-        if (response.data.status === 200) {
-            displayUSBDevices(response.data.devices);
-            statusText.textContent = `Found ${response.data.devices.length} USB device(s)`;
+        const response = await fetch(`/ejectUsbDrive`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        addToActivityLog(`Eject attempt for drive ${driveLetter}: ${data.message}`);
+        
+        if (data.status === 200) {
+            alert(`Drive ${driveLetter}: ejected successfully!`);
+            // Refresh the drive list after ejection
+            setTimeout(listUsbDrives, 1000);
         } else {
-            statusText.textContent = 'Error getting USB devices';
-            addLogEntry('Error getting USB devices from server', 'error');
+            alert(`Error ejecting drive ${driveLetter}: ${data.message}`);
         }
     } catch (error) {
-        console.error('Error:', error);
-        statusText.textContent = 'Error getting USB devices';
-        addLogEntry(`Error getting USB devices: ${error.message}`, 'error');
+        console.error('Error ejecting USB drive:', error);
+        addToActivityLog(`Error ejecting drive ${driveLetter}: ${error.message}`);
     }
 }
 
-// Enhanced displayUSBDevices function that checks for disconnections
-function displayUSBDevices(devices) {
-    // Check for disconnections before updating the display
-    checkForDisconnectedDevices(devices);
-    
-    // Call the original function
-    originalDisplayUSBDevices(devices);
-}
-
-// Function to show goodbye GIF
-function showGoodbyeGif() {
-    const goodbyeGif = document.getElementById('goodbye-gif');
-    if (!goodbyeGif) return;
-    
-    goodbyeGif.style.display = 'flex';
-    
-    // After animation completes, hide the GIF again
-    setTimeout(() => {
-        goodbyeGif.style.display = 'none';
-    }, 2000); // Match the CSS animation duration
-}
-
-// Check for disconnected devices by comparing with previous state
-function checkForDisconnectedDevices(currentDevices) {
-    // Only check for disconnections if we have a previous state (not on initial load)
-    if (previousDevices.length > 0) {
-        // Find devices that were present before but are not in the current list
-        const disconnectedDevices = previousDevices.filter(prevDevice => 
-            !currentDevices.some(currDevice => currDevice.id === prevDevice.id)
-        );
-        
-        if (disconnectedDevices.length > 0) {
-            // Show goodbye GIF for any USB device disconnection, but log differently based on type
-            // For now, show goodbye GIF for any disconnected device, regardless of type
-            var deviceList = disconnectedDevices.map(d => d.name || d.id).join(', ');
-            addLogEntry('Device(s) disconnected: ' + deviceList, 'info');
-            showGoodbyeGif();
-        }
+// Function to eject USB drive via CM API
+async function ejectUsbDriveManual(driveLetter) {
+    if (!confirm(`Are you sure you want to eject drive ${driveLetter}: via CM API?`)) {
+        return;
     }
     
-    // Update the previous devices list
-    previousDevices = [...currentDevices];
-}
+    driveLetter = driveLetter[0]
 
-// Safely eject a USB device
-async function safelyEjectDevice(deviceId) {
-    addLogEntry(`Attempting safe ejection for device: ${deviceId}`, 'info');
-    
     try {
-        const response = await axios.post('/safelyEjectUSB', deviceId);
+        const formData = new FormData();
+        formData.append('drive', driveLetter);
         
-        if (response.data.status === 200) {
-            addLogEntry(response.data.message, 'success');
-            // Refresh the device list to reflect changes
-            setTimeout(refreshUSBDevices, 1000);
+        const response = await fetch(`/ejectUsbDriveManual`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        addToActivityLog(`CM eject attempt for drive ${driveLetter}: ${data.message}`);
+        
+        if (data.status === 200) {
+            alert(`Drive ${driveLetter}: ejected successfully via CM API!`);
+            // Refresh the drive list after ejection
+            setTimeout(listUsbDrives, 1000);
         } else {
-            addLogEntry(response.data.message, 'error');
+            alert(`Error ejecting drive ${driveLetter} via CM API: ${data.message}`);
         }
     } catch (error) {
-        console.error('Error:', error);
-        addLogEntry(`Error during safe ejection: ${error.message}`, 'error');
+        console.error('Error ejecting USB drive via CM API:', error);
+        addToActivityLog(`Error ejecting drive ${driveLetter} via CM API: ${error.message}`);
     }
 }
 
-// Unsafely eject a USB device
-async function unsafeEjectDevice(deviceId) {
-    addLogEntry(`Attempting unsafe ejection for device: ${deviceId}`, 'warning');
+// Function to add entries to the activity log
+function addToActivityLog(message) {
+    const logContainer = document.getElementById('log-entries');
+    if (!logContainer) return;
     
-    try {
-        const response = await axios.post('/unsafeEjectUSB', deviceId);
-        
-        if (response.data.status === 200) {
-            addLogEntry(response.data.message, 'success');
-            // Refresh the device list to reflect changes
-            setTimeout(refreshUSBDevices, 1000);
-        } else {
-            addLogEntry(response.data.message, 'error');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        addLogEntry(`Error during unsafe ejection: ${error.message}`, 'error');
+    const timestamp = new Date().toLocaleString();
+    const logEntry = document.createElement('div');
+    logEntry.className = 'log-entry';
+    logEntry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+    
+    logContainer.prepend(logEntry); // Add to the top of the log
+    
+    // Keep only the last 50 entries to prevent the log from growing too large
+    if (logContainer.children.length > 50) {
+        logContainer.removeChild(logContainer.lastChild);
     }
 }
 
-// DOM ready function
-document.addEventListener('DOMContentLoaded', function() {
-    // DOM elements - only accessed after DOM is loaded
-    const coordsLabel = document.getElementById('cursor-coords');
-    const screenLabel = document.getElementById('screen-dimensions');
-    const refreshBtn = document.getElementById('refresh-btn');
-    const statusText = document.getElementById('status-text');
+// Function to refresh input devices (placeholder)
+function refreshInputDevices() {
+    listInputDevices();
+    addToActivityLog('Refreshing input devices...');
+}
 
-    // Define updateScreenDimensions function inside DOMContentLoaded
-    function updateScreenDimensions() {
-        if (screenLabel) {
-            screenLabel.textContent = `Screen Dimensions: ${window.innerWidth}x${window.innerHeight}`;
-        }
-    }
-
-    // Initialize
-    updateScreenDimensions();
-
-    // Event listeners
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', refreshUSBDevices);
-    }
-
-    // Add a welcome message to the log
-    addLogEntry('USB Monitor initialized. Monitoring for connected devices...', 'info');
-
-    // Initial load with error handling
-    try {
-        refreshUSBDevices();
-    } catch (error) {
-        console.error('Error during initial USB device refresh:', error);
-        addLogEntry(`Error during initial USB device refresh: ${error.message}`, 'error');
-    }
-
-    // Refresh devices every 5 seconds
-    setInterval(() => {
-        try {
-            refreshUSBDevices();
-        } catch (error) {
-            console.error('Error during periodic USB device refresh:', error);
-            addLogEntry(`Error during periodic USB device refresh: ${error.message}`, 'error');
-        }
-    }, 5000);
-
-    // Update screen dimensions on window resize
-    window.addEventListener('resize', updateScreenDimensions);
-
-    // Hide the debugging information that was used for parallax
-    if (coordsLabel) coordsLabel.style.visibility = 'hidden';
-    if (screenLabel) screenLabel.style.visibility = 'hidden';
-});
+// Function to disable keyboard (placeholder)
+async function disableKeyboard() {
+    alert('Disable keyboard function would be implemented here');
+    addToActivityLog('Attempted to disable keyboard');
+}

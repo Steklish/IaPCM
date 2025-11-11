@@ -1,349 +1,339 @@
-/* lab05.css - USB Device Monitor Styles */
-@import url('https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap');
+/* lab05.css - Styling for USB device management */
 
-:root {
-  --primary-color: #0a0a0a;
-  --secondary-color: #1a1a1a;
-  --accent-color: #00ff00;
-  --text-color: #ffffff;
-  --border-color: #333333;
-  --success-color: #4caf50;
-  --warning-color: #ff9800;
-  --error-color: #f44336;
-  --hover-color: #444444;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Zen Dots', cursive;
-  background-color: var(--primary-color);
-  color: var(--text-color);
-  overflow: hidden; /* Prevent scrolling */
-  height: 100vh;
-  width: 100vw;
-}
-
-/* GIF Background */
-.gif-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('/static/lab_05/une1n5xotraf1.gif'); /* Using existing animated background */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  z-index: 0;
-  pointer-events: none; /* Allow clicks to pass through to content */
-}
-
-/* Main Container */
 .main-container {
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  pointer-events: auto; /* Allow clicks on UI elements */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
 }
 
-/* Home Button */
 .home-button {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  border: 2px solid #333;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  font-size: 24px;
-  cursor: pointer;
-  z-index: 100;
-  transition: all 0.3s ease;
-  font-family: 'Zen Dots', cursive;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: #4a6fa5;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
 }
 
 .home-button:hover {
-  background-color: rgba(50, 50, 50, 0.9);
-  transform: scale(1.1);
-}
-
-/* USB Controls */
-.usb-controls {
-  background-color: rgba(30, 30, 30, 0.85);
-  border: 2px solid var(--border-color);
-  border-radius: 15px;
-  padding: 25px;
-  width: 80%;
-  max-width: 1000px;
-  max-height: 85vh;
-  overflow-y: auto;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+    background-color: #3a5a80;
 }
 
 .usb-controls h1 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: var(--accent-color);
-  font-size: 2.5rem;
-  text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5em;
 }
 
-/* Status Bar */
 .status-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 10px;
-  background-color: rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ecf0f1;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 #status-text {
-  font-size: 1.1rem;
-  color: var(--accent-color);
+    font-weight: bold;
+    color: #27ae60;
 }
 
-/* Control Button */
 .control-button {
-  background-color: #2c3e50;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: 'Zen Dots', cursive;
-  font-size: 1rem;
-  transition: background-color 0.3s;
+    background-color: #3498db;
+    color: rgba(255, 255, 255, 0.182);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
 }
 
 .control-button:hover {
-  background-color: #34495e;
+    background-color: #2980b9;
 }
 
-/* Devices List */
+.hid-controls {
+    background-color: #f8f9fa58;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.hid-controls h2 {
+    color: #2c3e50;
+    margin-top: 0;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+}
+
+.hid-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.hid-control-button {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s;
+    flex: 1;
+    min-width: 150px;
+}
+
+.hid-control-button:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+#usb-devices-container, #input-devices-container {
+    background-color: #ffffff43;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+#usb-devices-container h2, #input-devices-container h2 {
+    color: #2c3e50;
+    margin-top: 0;
+    border-bottom: 2px solid #2ecc71;
+    padding-bottom: 10px;
+}
+
 .devices-list {
-  margin: 20px 0;
+    min-height: 100px;
+    background-color: #f9f9f960;
+    border-radius: 5px;
+    padding: 15px;
 }
 
-.device-item {
-  background-color: rgba(40, 40, 40, 0.7);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  margin-bottom: 15px;
-  padding: 15px;
-  transition: transform 0.2s;
+.drive-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.device-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+.drive-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 10px;
+    background-color: #e8f4f8;
+    border-radius: 5px;
+    border-left: 4px solid #3498db;
 }
 
-.device-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  padding-bottom: 5px;
-  border-bottom: 1px solid var(--border-color);
+.drive-letter {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #2c3e50;
+}
+
+.drive-path {
+    color: #7f8c8d;
+    font-family: monospace;
+}
+
+.eject-btn, .eject-cm-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.input-device-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.input-device-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 10px;
+    background-color: #f8f4e8;
+    border-radius: 5px;
+    border-left: 4px solid #9b59b6;
+}
+
+.device-info {
+    flex: 1;
 }
 
 .device-name {
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: var(--accent-color);
+    display: block;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.device-type {
+    display: inline-block;
+    background-color: #9b59b6;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8em;
+    margin-right: 8px;
+}
+
+.device-vidpid {
+    color: #7f8c8d;
+    font-size: 0.9em;
 }
 
 .device-status {
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-size: 0.9rem;
+    text-align: right;
 }
 
-.device-status.connected {
-  background-color: var(--success-color);
-  color: white;
+.status-indicator {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.9em;
 }
 
-.device-status.disconnected {
-  background-color: var(--error-color);
-  color: white;
+.status-indicator.connected {
+    background-color: #2ecc71;
+    color: white;
 }
 
-.device-details {
-  padding-left: 10px;
-}
-
-.device-details p {
-  margin: 5px 0;
-  font-size: 0.95rem;
-}
-
-.device-actions {
-  margin-top: 10px;
-  display: flex;
-  gap: 10px;
+.status-indicator.disconnected {
+    background-color: #e74c3c;
+    color: white;
 }
 
 .eject-btn {
-  padding: 8px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: 'Zen Dots', cursive;
-  font-size: 0.9rem;
-  transition: all 0.3s;
+    background-color: #e74c3c;
+    color: white;
 }
 
-.safe-eject {
-  background-color: var(--success-color);
-  color: white;
+.eject-btn:hover {
+    background-color: #c0392b;
 }
 
-.safe-eject:hover {
-  background-color: #388e3c;
-  transform: translateY(-2px);
+.eject-cm-btn {
+    background-color: #f39c12;
+    color: white;
+    margin-left: 10px;
 }
 
-.unsafe-eject {
-  background-color: var(--warning-color);
-  color: white;
+.eject-cm-btn:hover {
+    background-color: #d35400;
 }
 
-.unsafe-eject:hover {
-  background-color: #f57c00;
-  transform: translateY(-2px);
-}
-
-.no-devices {
-  text-align: center;
-  padding: 20px;
-  color: var(--accent-color);
-  font-style: italic;
-}
-
-/* Activity Log */
 .activity-log {
-  margin-top: 25px;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .activity-log h2 {
-  color: var(--accent-color);
-  margin-bottom: 10px;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 5px;
+    color: #2c3e50;
+    margin-top: 0;
+    border-bottom: 2px solid #9b59b6;
+    padding-bottom: 10px;
 }
 
 .log-entries {
-  max-height: 200px;
-  overflow-y: auto;
-  background-color: rgba(0, 0, 0, 0.5);
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  padding: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    font-family: monospace;
 }
 
 .log-entry {
-  padding: 5px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.9rem;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
 }
 
 .log-entry:last-child {
-  border-bottom: none;
-}
-
-.log-entry.success {
-  color: var(--success-color);
-}
-
-.log-entry.warning {
-  color: var(--warning-color);
-}
-
-.log-entry.error {
-  color: var(--error-color);
-}
-
-.log-entry.info {
-  color: var(--accent-color);
+    border-bottom: none;
 }
 
 .timestamp {
-  font-size: 0.8rem;
-  color: #aaa;
-  margin-right: 10px;
+    color: #7f8c8d;
+    font-size: 0.9em;
+    margin-right: 10px;
 }
 
-/* Cursor coordinates and screen dimensions */
-/* Goodbye GIF Animation */
+/* Goodbye GIF styling */
 .goodbye-gif {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.7);
-  border-radius: 20px;
-  padding: 20px;
-  animation: fadeInOut 3s ease-in-out forwards;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
 }
 
 .goodbye-gif img {
-  max-width: 300px;
-  max-height: 300px;
-  width: auto;
-  height: auto;
+    max-width: 300px;
+    max-height: 300px;
 }
 
-@keyframes fadeInOut {
-  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-  20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-}
-
-/* Debug elements removed as parallax effect is replaced with static GIF background */
-
-/* Responsive Design */
+/* Responsive design */
 @media (max-width: 768px) {
-  .usb-controls {
-    width: 95%;
-    padding: 15px;
-  }
-  
-  .usb-controls h1 {
-    font-size: 1.8rem;
-  }
-  
-  .device-actions {
-    flex-direction: column;
-  }
-  
-  .eject-btn {
-    width: 100%;
-  }
-  
-  .status-bar {
-    flex-direction: column;
-    gap: 10px;
-  }
+    .main-container {
+        padding: 10px;
+    }
+    
+    .hid-actions {
+        flex-direction: column;
+    }
+    
+    .hid-control-button {
+        min-width: 100%;
+    }
+    
+    .status-bar {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .drive-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .drive-letter, .drive-path {
+        align-self: flex-start;
+    }
+    
+    .eject-btn, .eject-cm-btn {
+        align-self: flex-end;
+    }
 }

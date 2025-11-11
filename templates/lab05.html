@@ -13,7 +13,9 @@
 </head>
 
 <body>
-    <div class="gif-background"></div>
+    <div class="gif-background" style="position: fixed; z-index: -2; width: 100%; height: 100%;" >
+        <img src="/static/lab_05/une1n5xotraf1.gif">
+    </div>
 
     <div class="main-container">
         <button onclick="location.href='/'" class="home-button">⌂</button>
@@ -25,6 +27,24 @@
             <div class="status-bar">
                 <span id="status-text">Monitoring USB devices...</span>
                 <button id="refresh-btn" class="control-button">Refresh Devices</button>
+            </div>
+
+            <!-- HID Device Controls -->
+            <div id="hid-controls" class="hid-controls">
+                <h2>HID Device Controls</h2>
+                <div class="hid-actions">
+                    <button id="disable-mouse-btn" class="hid-control-button">Disable Mouse</button>
+                    <button id="disable-keyboard-btn" class="hid-control-button">Disable Keyboard</button>
+                    <button id="list-drives-btn" class="hid-control-button">List Drives</button>
+                    <button id="refresh-input-devices-btn" class="hid-control-button">Refresh Input Devices</button>
+                </div>
+                
+                <div id="input-devices-container">
+                    <h3>Connected Input Devices</h3>
+                    <div id="input-devices-list" class="devices-list">
+                        <!-- Input devices will be listed here dynamically -->
+                    </div>
+                </div>
             </div>
             
             <div id="usb-devices-container">
