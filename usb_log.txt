@@ -30,3 +30,20 @@
 2025-11-11 11:14:30 Drive E: ejected successfully!
 2025-11-11 11:15:03 Attempting to safely eject drive E:
 2025-11-11 11:15:03 Failed to lock volume: 5
+2025-11-11 11:17:23 Attempting to safely eject drive E:
+2025-11-11 11:17:23 Volume locked successfully
+2025-11-11 11:17:23 Volume dismounted successfully
+2025-11-11 11:17:23 Drive E: ejected successfully!
+2025-11-11 11:17:31 Attempting to safely eject drive E:
+2025-11-11 11:17:31 Volume locked successfully
+2025-11-11 11:17:31 Volume dismounted successfully
+2025-11-11 11:17:31 Drive E: ejected successfully!
+2025-11-11 11:17:38 → РУЧНОЕ ИЗВЛЕЧЕНИЕ: Запрос безопасного извлечения диска E:
+2025-11-11 11:17:38   Найдено устройство диска через Disk GUID: DevInst=10
+2025-11-11 11:17:38   Найдено устройство диска: DevInst=10
+2025-11-11 11:17:38   Способ 1: Ищем USB устройство, поднимаясь по дереву от диска:
+2025-11-11 11:17:38   [DEBUG] Проверяю родительское устройство (уровень 0): USB\VID_0DD8&PID_3708\FC2300276DE7720E
+2025-11-11 11:17:38   ✓ Найдено USB устройство в дереве: USB\VID_0DD8&PID_3708\FC2300276DE7720E
+2025-11-11 11:17:38   Пробуем извлечь USBSTOR устройство: DevInst=13
+2025-11-11 11:17:38   CM_Request_Device_Eject для USBSTOR вернул код: 0
+2025-11-11 11:17:38 ✓ РУЧНОЕ БЕЗОПАСНОЕ ИЗВЛЕЧЕНИЕ: Диск E: успешно извлечён через CM_Request_Device_Eject

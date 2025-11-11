@@ -164,6 +164,10 @@ async function ejectUsbDrive(driveLetter) {
     
     driveLetter = driveLetter[0]
     console.log(driveLetter)
+    
+    // Show goodbye.gif when ejecting starts
+    showGoodbyeGif();
+    
     try {
         const formData = new FormData();
         formData.append('drive', driveLetter);
@@ -186,6 +190,9 @@ async function ejectUsbDrive(driveLetter) {
     } catch (error) {
         console.error('Error ejecting USB drive:', error);
         addToActivityLog(`Error ejecting drive ${driveLetter}: ${error.message}`);
+    } finally {
+        // Hide the goodbye.gif after the operation completes
+        hideGoodbyeGif();
     }
 }
 
@@ -197,6 +204,9 @@ async function ejectUsbDriveManual(driveLetter) {
     
     driveLetter = driveLetter[0]
 
+    // Show goodbye.gif when ejecting starts
+    showGoodbyeGif();
+    
     try {
         const formData = new FormData();
         formData.append('drive', driveLetter);
@@ -219,6 +229,9 @@ async function ejectUsbDriveManual(driveLetter) {
     } catch (error) {
         console.error('Error ejecting USB drive via CM API:', error);
         addToActivityLog(`Error ejecting drive ${driveLetter} via CM API: ${error.message}`);
+    } finally {
+        // Hide the goodbye.gif after the operation completes
+        hideGoodbyeGif();
     }
 }
 
@@ -250,4 +263,59 @@ function refreshInputDevices() {
 async function disableKeyboard() {
     alert('Disable keyboard function would be implemented here');
     addToActivityLog('Attempted to disable keyboard');
+}
+
+// Function to show the goodbye.gif overlay
+function showGoodbyeGif() {
+    // Check if the overlay already exists to avoid duplicates
+    let overlay = document.getElementById('goodbye-overlay');
+    if (overlay) {
+        overlay.remove(); // Remove existing overlay if it exists
+    }
+    
+    // Create overlay div
+    overlay = document.createElement('div');
+    overlay.id = 'goodbye-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    overlay.style.zIndex = '9999';
+    overlay.style.flexDirection = 'column';
+    
+    // Create and configure image element
+    const gif = document.createElement('img');
+    gif.src = '/static/lab_05/Goodbye.gif';
+    gif.alt = 'Goodbye';
+    gif.style.maxWidth = '50%';
+    gif.style.maxHeight = '50%';
+    gif.style.borderRadius = '10px';
+    
+    // Add text below the gif
+    const text = document.createElement('div');
+    text.textContent = 'Ejecting USB device...';
+    text.style.color = 'white';
+    text.style.fontSize = '24px';
+    text.style.marginTop = '20px';
+    text.style.textAlign = 'center';
+    
+    // Add elements to overlay
+    overlay.appendChild(gif);
+    overlay.appendChild(text);
+    
+    // Add overlay to the body
+    document.body.appendChild(overlay);
+}
+
+// Function to hide the goodbye.gif overlay
+function hideGoodbyeGif() {
+    const overlay = document.getElementById('goodbye-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
 }
