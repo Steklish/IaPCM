@@ -37,6 +37,20 @@ document.addEventListener('DOMContentLoaded', function() {
         getUsbInfoBtn.addEventListener('click', getUsbInfo);
     }
 
+    // Set up event delegation for dynamically created buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('control-btn')) {
+            const btn = e.target;
+            const action = btn.getAttribute('data-action');
+
+            if (action === 'toggle') {
+                const deviceId = btn.getAttribute('data-device-id');
+                const shouldDisable = btn.getAttribute('data-should-disable') === 'true';
+                toggleUsbDevice(deviceId, shouldDisable);
+            }
+        }
+    });
+
     // Load initial device lists
     listUsbDrives();
     listUsbDevices();
@@ -203,7 +217,7 @@ function displayUsbDevices(devices) {
                 <span class="status-indicator connected">
                     ● Connected
                 </span>
-                <button class="control-btn" onclick="toggleUsbDevice('${deviceId}', true)">Disable</button>
+                <button class="control-btn" data-device-id="${deviceId.replace(/"/g, '&quot;')}" data-action="toggle" data-should-disable="true">Disable</button>
             </div>
         </li>`;
     });
@@ -282,9 +296,12 @@ function displayUsbDrives(devices) {
 
 // Function to toggle (enable/disable) a USB device
 async function toggleUsbDevice(deviceId, shouldDisable) {
+    console.log("Toggle USB device called with deviceId:", deviceId, "shouldDisable:", shouldDisable);
     try {
         const url = shouldDisable ? '/disableUsbDevice' : '/enableUsbDevice';
         const action = shouldDisable ? 'disable' : 'enable';
+
+        console.log("Making API call to:", url, "with device_id:", deviceId);
 
         const response = await fetch(url, {
             method: 'POST',
@@ -294,7 +311,11 @@ async function toggleUsbDevice(deviceId, shouldDisable) {
             body: JSON.stringify({ device_id: deviceId })
         });
 
+        console.log("API response status:", response.status);
+
         const data = await response.json();
+        console.log("API response data:", data);
+
         addToActivityLog(data.message);
 
         if (data.status === 'success') {

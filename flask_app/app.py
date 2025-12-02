@@ -11,37 +11,70 @@ def run_usb_executable(args):
     """Run the USB manager executable with specified arguments"""
     exec_path = os.path.join(os.getcwd(), 'executables', 'usb_manager.exe')
     try:
-        result = subprocess.run([exec_path] + args, capture_output=True, text=True, timeout=30)
-        
+        import ctypes
+
+        # Check if we're running with elevated privileges
+        is_admin = ctypes.windll.shell32.IsUserAnAdmin()
+        needs_elevation = len(args) > 0 and args[0] in ['--disable', '--enable', '--eject', '--force-eject']
+
+        # Print command being executed for debugging
+        print(f"Executing USB command: {exec_path} {' '.join(args)}")
+        print(f"Running as admin: {is_admin}, Needs elevation: {needs_elevation}")
+
+        # Warn if we need elevation but don't have admin rights
+        if needs_elevation and not is_admin:
+            print("WARNING: This operation requires admin privileges. Please run the Flask app as Administrator.")
+
+        # For disable/enable operations, we may need elevated privileges if not already elevated
+        if needs_elevation and not is_admin:
+            # Use PowerShell to run with elevation (this will trigger UAC prompt)
+            cmd_args = ' '.join([f'"{arg}"' if ' ' in arg else arg for arg in args])
+            ps_command = f'Start-Process -FilePath "{exec_path}" -ArgumentList \'{cmd_args}\' -Verb RunAs'
+            result = subprocess.run(['powershell', '-Command', ps_command], capture_output=True, text=True, timeout=30)
+        else:
+            # Run the executable normally when already elevated or for non-elevated operations
+            result = subprocess.run([exec_path] + args, capture_output=True, text=True, timeout=30, shell=False)
+
+        # Print the raw stdout for debugging
+        print(f"USB Executable Output (args: {args}):")
+        print(result.stdout)
+        if result.stderr:
+            print(f"USB Executable Error: {result.stderr}")
+        if result.returncode != 0:
+            print(f"USB Executable failed with return code {result.returncode}")
+
         # Parse the output to extract device information
         if result.returncode == 0:
             output_lines = result.stdout.strip().split('\n')
-            
+
             # Filter out informational lines and keep only device entries
             devices = []
             current_device = {}
-            
+
             for line in output_lines:
                 line = line.strip()
-                
+
                 # Check if this is a device entry line (starts with a number and bracket)
                 if line.startswith('[') and line[1].isdigit() and '] ' in line:
                     # If we have a previous device, save it
                     if current_device and 'displayName' in current_device:
                         devices.append(current_device)
-                    
+
                     # Start a new device
                     current_device = {}
-                    
+
                     # Extract device name (after the number bracket)
                     parts = line.split('] ', 1)
                     if len(parts) > 1:
                         current_device['name'] = parts[1]
                         current_device['displayName'] = parts[1]
-                
+
                 # Extract device ID, type, drive letter, etc.
                 elif 'Device ID:' in line:
                     device_id = line.replace('Device ID:', '').strip()
+                    # Clean the device ID to ensure safe usage in JavaScript
+                    # Replace the ASCII bell character (0x07) which may cause issues
+                    device_id = device_id.replace('\x07', '\\7')
                     current_device['deviceID'] = device_id
                     # Use device ID as device_id for API compatibility
                     current_device['device_id'] = device_id
@@ -52,7 +85,7 @@ def run_usb_executable(args):
                         current_device['vid'] = vid_match.group(1)
                     if pid_match:
                         current_device['pid'] = pid_match.group(1)
-                
+
                 elif 'Type:' in line:
                     # Check if the type contains "Drive" to identify USB drives
                     original_type = line.replace('Type:', '').strip()
@@ -83,21 +116,28 @@ def run_usb_executable(args):
                     is_removable = 'Yes' in line
                     current_device['removable'] = is_removable
                     current_device['connected'] = True  # Removable devices are considered connected
-                
+
                 elif line == '--------------------------------------------------':
                     # End of current device entry
                     if current_device and 'displayName' in current_device:
                         devices.append(current_device)
                         current_device = {}
-            
+
             # Add the last device if exists
             if current_device and 'displayName' in current_device:
                 devices.append(current_device)
-            
-            return {"status": "success", "devices": devices}
+
+            return {"status": "success", "devices": devices, "raw_output": result.stdout}
         else:
-            return {"status": "error", "message": result.stderr or f"Command failed with exit code {result.returncode}"}
-    
+            error_msg = result.stderr or f"Command failed with exit code {result.returncode}"
+            print(f"USB Executable Error: {error_msg}")
+
+            # Check if this might be a permission issue
+            if "access is denied" in error_msg.lower() or result.returncode == 5:
+                error_msg += " (This operation may require running the Flask app as Administrator)"
+
+            return {"status": "error", "message": error_msg}
+
     except subprocess.TimeoutExpired:
         return {"status": "error", "message": "Command timed out"}
     except FileNotFoundError:
@@ -109,8 +149,19 @@ def run_bluetooth_executable():
     """Run the Bluetooth scanner executable"""
     exec_path = os.path.join(os.getcwd(), 'executables', 'bluetooth_scanner.exe')
     try:
+        # Print command being executed for debugging
+        print(f"Executing Bluetooth command: {exec_path}")
+
         result = subprocess.run([exec_path], capture_output=True, text=True, timeout=45)
-        
+
+        # Print the raw stdout for debugging
+        print(f"Bluetooth Executable Output:")
+        print(result.stdout)
+        if result.stderr:
+            print(f"Bluetooth Executable Error: {result.stderr}")
+        if result.returncode != 0:
+            print(f"Bluetooth Executable failed with return code {result.returncode}")
+
         if result.returncode == 0:
             output_lines = result.stdout.strip().split('\n')
             devices = []
@@ -147,9 +198,16 @@ def run_bluetooth_executable():
             if current_device:
                 devices.append(current_device)
             
-            return {"status": "success", "devices": devices}
+            return {"status": "success", "devices": devices, "raw_output": result.stdout}
         else:
-            return {"status": "error", "message": result.stderr or f"Command failed with exit code {result.returncode}"}
+            error_msg = result.stderr or f"Command failed with exit code {result.returncode}"
+            print(f"Bluetooth Executable Error: {error_msg}")
+
+            # Check if this might be a permission issue
+            if "access is denied" in error_msg.lower() or result.returncode == 5:
+                error_msg += " (This operation may require running the Flask app as Administrator)"
+
+            return {"status": "error", "message": error_msg}
     
     except subprocess.TimeoutExpired:
         return {"status": "error", "message": "Command timed out"}
@@ -162,8 +220,19 @@ def run_audio_executable(args):
     """Run the audio player executable"""
     exec_path = os.path.join(os.getcwd(), 'executables', 'bluetooth_audio_player.exe')
     try:
+        # Print command being executed for debugging
+        print(f"Executing Audio command: {exec_path} {' '.join(args)}")
+
         result = subprocess.run([exec_path] + args, capture_output=True, text=True, timeout=30)
-        
+
+        # Print the raw stdout for debugging
+        print(f"Audio Executable Output (args: {args}):")
+        print(result.stdout)
+        if result.stderr:
+            print(f"Audio Executable Error: {result.stderr}")
+        if result.returncode != 0:
+            print(f"Audio Executable failed with return code {result.returncode}")
+
         if result.returncode == 0:
             # For --list command, parse the audio devices
             if args and args[0] == '--list':
@@ -193,12 +262,19 @@ def run_audio_executable(args):
                             except ValueError:
                                 continue  # Skip if the index is not a number
                 
-                return {"status": "success", "devices": devices}
+                return {"status": "success", "devices": devices, "raw_output": result.stdout}
             else:
                 # For play commands, return success message
-                return {"status": "success", "message": result.stdout.strip()}
+                return {"status": "success", "message": result.stdout.strip(), "raw_output": result.stdout}
         else:
-            return {"status": "error", "message": result.stderr or f"Command failed with exit code {result.returncode}"}
+            error_msg = result.stderr or f"Command failed with exit code {result.returncode}"
+            print(f"Audio Executable Error: {error_msg}")
+
+            # Check if this might be a permission issue
+            if "access is denied" in error_msg.lower() or result.returncode == 5:
+                error_msg += " (This operation may require running the Flask app as Administrator)"
+
+            return {"status": "error", "message": error_msg}
     
     except subprocess.TimeoutExpired:
         return {"status": "error", "message": "Command timed out"}
@@ -246,18 +322,20 @@ def list_usb_devices():
 def disable_usb_device():
     data = request.get_json()
     device_id = data.get('device_id', '')
+    print(f"Received disable request for device_id: '{device_id}' (length: {len(device_id) if device_id else 0})")
     if not device_id:
         return jsonify({"status": "error", "message": "Device ID is required"})
-    
+
     return jsonify(run_usb_executable(['--disable', device_id]))
 
 @app.route('/enableUsbDevice', methods=['POST'])
 def enable_usb_device():
     data = request.get_json()
     device_id = data.get('device_id', '')
+    print(f"Received enable request for device_id: '{device_id}' (length: {len(device_id) if device_id else 0})")
     if not device_id:
         return jsonify({"status": "error", "message": "Device ID is required"})
-    
+
     return jsonify(run_usb_executable(['--enable', device_id]))
 
 @app.route('/ejectUsbDrive', methods=['POST'])

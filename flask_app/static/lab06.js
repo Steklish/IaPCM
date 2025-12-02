@@ -38,6 +38,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Set up event delegation for dynamically created buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('control-btn')) {
+            const btn = e.target;
+            const action = btn.getAttribute('data-action');
+
+            if (action === 'setVolume') {
+                const deviceName = btn.getAttribute('data-device-name');
+                const volume = parseInt(btn.getAttribute('data-volume'));
+                setAudioVolume(deviceName, volume);
+            } else if (action === 'toggleMute') {
+                const deviceName = btn.getAttribute('data-device-name');
+                toggleAudioMute(deviceName);
+            }
+        }
+    });
+
     // Load initial device lists
     listBluetoothDevices();
     listAudioDevices();
@@ -196,8 +213,8 @@ function displayAudioDevices(devices) {
                 <span class="device-vidpid">ID: ${deviceId}</span>
             </div>
             <div class="device-status">
-                <button class="control-btn" onclick="setAudioVolume('${deviceName}', 50)">Set Volume</button>
-                <button class="control-btn" onclick="toggleAudioMute('${deviceName}')">Mute/Unmute</button>
+                <button class="control-btn" data-device-name="${deviceName.replace(/"/g, '&quot;')}" data-action="setVolume" data-volume="50">Set Volume</button>
+                <button class="control-btn" data-device-name="${deviceName.replace(/"/g, '&quot;')}" data-action="toggleMute">Mute/Unmute</button>
             </div>
         </li>`;
     });
