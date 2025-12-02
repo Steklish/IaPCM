@@ -1,0 +1,111 @@
+.home-button {
+    position: absolute;
+    background-color: #ffffff32;
+    border-style: solid;
+    border-color: white;
+    color: white;
+    top: 20px;
+    left: 20px;
+    padding: 20px;
+    font-size: 50px;
+    border-radius: 25px;
+    margin: 5px;
+    text-align: center;
+    transition: 0.2s ease;
+}
+
+.home-button:hover{
+  text-shadow: 0 0 500px rgb(240, 133, 33), 0 0 100px white, 0 0 200px rgb(255, 72, 0), 0 0 500px rgb(240, 133, 33), 0 0 100px white, 0 0 200px rgb(255, 72, 0);
+}
+
+#battery-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: gray;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: left;
+    font-size: 16px;
+}
+
+#battery-info div {
+    margin-bottom: 10px;
+}
+
+#info {
+    font-size: 12px;
+    margin-top: 15px;
+}
+
+
+#battery-info button {
+    background-color: #44392e;
+    font-family: inherit;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+#battery-info button:hover {
+    background-color: #c6754c;
+}
+
+/* From Uiverse.io by Yaya12085 */ 
+.loader {
+  box-sizing: border-box;
+  background-color: rgba(255, 255, 255, 0.511);
+  position: relative;
+  color: white;
+  display: block;
+  width: 60px;
+  height: 22px;
+  border: 2px solid;
+  border-radius: 3px;
+  margin-left: 120px
+}
+
+.loader::after,
+.loader::before {
+  content: "";
+  display: block;
+  box-sizing: border-box;
+  position: absolute;
+  height: 12px;
+  background: currentColor;
+  top: 3px
+}
+
+.loader::before {
+  right: -4px;
+  border-radius: 8px;
+  width: 4px
+}
+
+.loader::after {
+  width: 1px;
+  left: 3px;
+  animation: none;
+}
+
+@keyframes full {
+  20% {
+    background-color: rgb(232, 52, 52)
+  }
+
+  45% {
+    background-color: rgb(255, 200, 48);
+  }
+
+  to {
+    width: 50px;
+    background-color: greenyellow;
+  }
+}

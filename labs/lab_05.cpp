@@ -590,86 +590,86 @@ static bool SafelyEjectDriveViaCM(char driveLetter) {
 // Выводит ответы в формате: OK USB_MOUSE_DISABLED или ERROR <тип_ошибки> [код]
 static int DisableUsbMouseManual() {
     logf("→ РУЧНОЕ ОТКЛЮЧЕНИЕ: Запрос отключения USB-мыши");
-    
+
     // GUID для HID устройств
     const GUID GUID_DEVINTERFACE_HID = {0x4d1e55b2, 0xf16f, 0x11cf, {0x88, 0xcb, 0x00, 0x11, 0x11, 0x00, 0x00, 0x30}};
-    
+
     DEVINST mouseDevInst = 0;
     bool foundMouse = false;
-    
+
     // Способ 1: Ищем через SetupDiGetClassDevs для HID устройств
     logf("  Способ 1: Ищем USB HID мышь через SetupDiGetClassDevs:");
-    
+
     HDEVINFO hDevInfo = SetupDiGetClassDevsA(
         &GUID_DEVINTERFACE_HID,
         nullptr,
         nullptr,
         DIGCF_PRESENT | DIGCF_DEVICEINTERFACE
     );
-    
+
     if (hDevInfo == INVALID_HANDLE_VALUE) {
         DWORD err = GetLastError();
         logf("  [DEBUG] SetupDiGetClassDevsA для HID вернул INVALID_HANDLE_VALUE (ошибка " + std::to_string(err) + ")");
     } else {
         SP_DEVICE_INTERFACE_DATA interfaceData;
         interfaceData.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA);
-        
+
         DWORD deviceCount = 0;
         for (DWORD i = 0; SetupDiEnumDeviceInterfaces(hDevInfo, nullptr, &GUID_DEVINTERFACE_HID, i, &interfaceData); i++) {
             deviceCount++;
-            
+
             DWORD requiredSize = 0;
             SetupDiGetDeviceInterfaceDetailA(hDevInfo, &interfaceData, nullptr, 0, &requiredSize, nullptr);
-            
+
             if (requiredSize > 0) {
                 std::vector<BYTE> buffer(requiredSize);
                 PSP_DEVICE_INTERFACE_DETAIL_DATA_A detailData = (PSP_DEVICE_INTERFACE_DETAIL_DATA_A)buffer.data();
                 detailData->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_A);
-                
+
                 SP_DEVINFO_DATA devInfoData;
                 devInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
-                
+
                 if (SetupDiGetDeviceInterfaceDetailA(hDevInfo, &interfaceData, detailData, requiredSize, nullptr, &devInfoData)) {
                     // Получаем описание устройства
                     char description[256] = {0};
                     if (SetupDiGetDeviceRegistryPropertyA(hDevInfo, &devInfoData, SPDRP_DEVICEDESC, nullptr, (PBYTE)description, sizeof(description), nullptr)) {
                         std::string descStr(description);
                         std::transform(descStr.begin(), descStr.end(), descStr.begin(), ::tolower);
-                        
+
                         // Получаем instance ID для проверки USB
                         char instanceId[512] = {0};
                         if (SetupDiGetDeviceInstanceIdA(hDevInfo, &devInfoData, instanceId, sizeof(instanceId), nullptr)) {
                             std::string instanceStr(instanceId);
                             std::transform(instanceStr.begin(), instanceStr.end(), instanceStr.begin(), ::tolower);
-                            
+
                             logf("  [DEBUG] Проверяю HID устройство #" + std::to_string(i) + ": " + std::string(description) + " (" + instanceStr.substr(0, 60) + ")");
-                            
+
                             // Проверяем, что это USB устройство и мышь
                             // USB устройство должно иметь VID_ в instance ID (не просто HID)
-                            bool isUsb = (instanceStr.find("usb\\") != std::string::npos) || 
+                            bool isUsb = (instanceStr.find("usb\\") != std::string::npos) ||
                                         (instanceStr.find("hid\\vid_") != std::string::npos);
-                            bool isMouse = (descStr.find("mouse") != std::string::npos) && 
+                            bool isMouse = (descStr.find("mouse") != std::string::npos) &&
                                           (descStr.find("keyboard") == std::string::npos) &&
                                           (descStr.find("keypad") == std::string::npos);
-                            
+
                             if (isUsb && isMouse) {
                                 // Поднимаемся по дереву устройств вверх, ища USB устройство с VID/PID
                                 DEVINST currentInst = devInfoData.DevInst;
                                 bool foundUsbDevice = false;
-                                
+
                                 for (int level = 0; level < 10; level++) {
                                     DEVINST parentInst = 0;
                                     CONFIGRET parentCr = CM_Get_Parent(&parentInst, currentInst, 0);
                                     if (parentCr != CR_SUCCESS) break;
-                                    
+
                                     currentInst = parentInst;
-                                    
+
                                     char parentInstanceId[512] = {0};
                                     CONFIGRET cr2 = CM_Get_Device_IDA(parentInst, parentInstanceId, sizeof(parentInstanceId), 0);
                                     if (cr2 == CR_SUCCESS) {
                                         std::string parentInstanceStr(parentInstanceId);
                                         logf("  [DEBUG] Проверяю родительское устройство (уровень " + std::to_string(level) + "): " + parentInstanceStr.substr(0, 80));
-                                        
+
                                         // Ищем USB устройство с VID/PID
                                         if (parentInstanceStr.find("USB\\") == 0 && parentInstanceStr.find("VID_") != std::string::npos) {
                                             logf("  ✓ Найдено USB устройство для мыши: " + parentInstanceStr.substr(0, 80));
@@ -680,7 +680,7 @@ static int DisableUsbMouseManual() {
                                         }
                                     }
                                 }
-                                
+
                                 if (!foundUsbDevice) {
                                     // Если не нашли USB устройство, используем само HID устройство
                                     logf("  ✓ Найдена USB HID мышь: " + std::string(description));
@@ -694,73 +694,73 @@ static int DisableUsbMouseManual() {
                 }
             }
         }
-        
+
         if (deviceCount == 0) {
             logf("  [DEBUG] HID устройства не найдены через SetupDiEnumDeviceInterfaces");
         } else if (!foundMouse) {
             logf("  [DEBUG] Проверено " + std::to_string(deviceCount) + " HID устройств, USB мышь не найдена");
         }
-        
+
         SetupDiDestroyDeviceInfoList(hDevInfo);
     }
-    
+
     // Способ 2: Ищем через класс Mouse
     if (!foundMouse) {
         logf("  Способ 2: Ищем USB мышь через класс Mouse:");
-        
+
         // GUID для мышей
         const GUID mouseClassGuid = {0x4d36e96f, 0xe325, 0x11ce, {0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18}};
-        
+
         HDEVINFO hDevInfo = SetupDiGetClassDevsA(
             &mouseClassGuid,
             nullptr,
             nullptr,
             DIGCF_PRESENT
         );
-        
+
         if (hDevInfo == INVALID_HANDLE_VALUE) {
             DWORD err = GetLastError();
             logf("  [DEBUG] SetupDiGetClassDevsA для Mouse вернул INVALID_HANDLE_VALUE (ошибка " + std::to_string(err) + ")");
         } else {
             SP_DEVINFO_DATA devInfoData;
             devInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
-            
+
             DWORD deviceCount = 0;
             for (DWORD i = 0; SetupDiEnumDeviceInfo(hDevInfo, i, &devInfoData); i++) {
                 deviceCount++;
-                
+
                 char instanceId[512] = {0};
                 if (SetupDiGetDeviceInstanceIdA(hDevInfo, &devInfoData, instanceId, sizeof(instanceId), nullptr)) {
                     std::string instanceStr(instanceId);
                     std::transform(instanceStr.begin(), instanceStr.end(), instanceStr.begin(), ::tolower);
-                    
+
                     char description[256] = {0};
                     SetupDiGetDeviceRegistryPropertyA(hDevInfo, &devInfoData, SPDRP_DEVICEDESC, nullptr, (PBYTE)description, sizeof(description), nullptr);
-                    
+
                     logf("  [DEBUG] Проверяю мышь #" + std::to_string(i) + ": " + std::string(description) + " (" + instanceStr.substr(0, 60) + ")");
-                    
+
                     // Проверяем, что это USB устройство (должно иметь VID_ в instance ID)
-                    bool isUsb = (instanceStr.find("usb\\") != std::string::npos) || 
+                    bool isUsb = (instanceStr.find("usb\\") != std::string::npos) ||
                                 (instanceStr.find("hid\\vid_") != std::string::npos);
-                    
+
                     if (isUsb) {
                         // Поднимаемся по дереву устройств вверх, ища USB устройство с VID/PID
                         DEVINST currentInst = devInfoData.DevInst;
                         bool foundUsbDevice = false;
-                        
+
                         for (int level = 0; level < 10; level++) {
                             DEVINST parentInst = 0;
                             CONFIGRET parentCr = CM_Get_Parent(&parentInst, currentInst, 0);
                             if (parentCr != CR_SUCCESS) break;
-                            
+
                             currentInst = parentInst;
-                            
+
                             char parentInstanceId[512] = {0};
                             CONFIGRET cr2 = CM_Get_Device_IDA(parentInst, parentInstanceId, sizeof(parentInstanceId), 0);
                             if (cr2 == CR_SUCCESS) {
                                 std::string parentInstanceStr(parentInstanceId);
                                 logf("  [DEBUG] Проверяю родительское устройство (уровень " + std::to_string(level) + "): " + parentInstanceStr.substr(0, 80));
-                                
+
                                 // Ищем USB устройство с VID/PID
                                 if (parentInstanceStr.find("USB\\") == 0 && parentInstanceStr.find("VID_") != std::string::npos) {
                                     logf("  ✓ Найдено USB устройство для мыши: " + parentInstanceStr.substr(0, 80));
@@ -771,7 +771,7 @@ static int DisableUsbMouseManual() {
                                 }
                             }
                         }
-                        
+
                         if (!foundUsbDevice) {
                             // Если не нашли USB устройство, используем само HID устройство
                             logf("  ✓ Найдена USB мышь (HID): " + std::string(description));
@@ -782,55 +782,55 @@ static int DisableUsbMouseManual() {
                     }
                 }
             }
-            
+
             if (deviceCount == 0) {
                 logf("  [DEBUG] Мыши не найдены через SetupDiEnumDeviceInfo");
             } else if (!foundMouse) {
                 logf("  [DEBUG] Проверено " + std::to_string(deviceCount) + " мышей, USB мышь не найдена");
             }
-            
+
             SetupDiDestroyDeviceInfoList(hDevInfo);
         }
     }
-    
+
     // Способ 3: Ищем USB устройство с VID/PID, поднимаясь по дереву от найденных HID устройств
     if (!foundMouse) {
         logf("  Способ 3: Ищем USB устройство, поднимаясь по дереву от HID устройств:");
-        
+
         const GUID GUID_DEVINTERFACE_HID = {0x4d1e55b2, 0xf16f, 0x11cf, {0x88, 0xcb, 0x00, 0x11, 0x11, 0x00, 0x00, 0x30}};
-        
+
         HDEVINFO hDevInfo = SetupDiGetClassDevsA(
             &GUID_DEVINTERFACE_HID,
             nullptr,
             nullptr,
             DIGCF_PRESENT | DIGCF_DEVICEINTERFACE
         );
-        
+
         if (hDevInfo != INVALID_HANDLE_VALUE) {
             SP_DEVICE_INTERFACE_DATA interfaceData;
             interfaceData.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA);
-            
+
             for (DWORD i = 0; SetupDiEnumDeviceInterfaces(hDevInfo, nullptr, &GUID_DEVINTERFACE_HID, i, &interfaceData); i++) {
                 DWORD requiredSize = 0;
                 SetupDiGetDeviceInterfaceDetailA(hDevInfo, &interfaceData, nullptr, 0, &requiredSize, nullptr);
-                
+
                 if (requiredSize > 0) {
                     std::vector<BYTE> buffer(requiredSize);
                     PSP_DEVICE_INTERFACE_DETAIL_DATA_A detailData = (PSP_DEVICE_INTERFACE_DETAIL_DATA_A)buffer.data();
                     detailData->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_A);
-                    
+
                     SP_DEVINFO_DATA devInfoData;
                     devInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
-                    
+
                     if (SetupDiGetDeviceInterfaceDetailA(hDevInfo, &interfaceData, detailData, requiredSize, nullptr, &devInfoData)) {
                         char description[256] = {0};
                         SetupDiGetDeviceRegistryPropertyA(hDevInfo, &devInfoData, SPDRP_DEVICEDESC, nullptr, (PBYTE)description, sizeof(description), nullptr);
                         std::string descStr(description);
                         std::transform(descStr.begin(), descStr.end(), descStr.begin(), ::tolower);
-                        
-                        bool isMouse = (descStr.find("mouse") != std::string::npos) && 
+
+                        bool isMouse = (descStr.find("mouse") != std::string::npos) &&
                                       (descStr.find("keyboard") == std::string::npos);
-                        
+
                         if (isMouse) {
                             // Поднимаемся по дереву устройств вверх, ища USB устройство
                             DEVINST currentInst = devInfoData.DevInst;
@@ -838,15 +838,15 @@ static int DisableUsbMouseManual() {
                                 DEVINST parentInst = 0;
                                 CONFIGRET parentCr = CM_Get_Parent(&parentInst, currentInst, 0);
                                 if (parentCr != CR_SUCCESS) break;
-                                
+
                                 currentInst = parentInst;
-                                
+
                                 char parentInstanceId[512] = {0};
                                 CONFIGRET cr2 = CM_Get_Device_IDA(parentInst, parentInstanceId, sizeof(parentInstanceId), 0);
                                 if (cr2 == CR_SUCCESS) {
                                     std::string parentInstanceStr(parentInstanceId);
                                     logf("  [DEBUG] Проверяю родительское устройство (уровень " + std::to_string(level) + "): " + parentInstanceStr.substr(0, 80));
-                                    
+
                                     // Ищем USB устройство с VID/PID
                                     if (parentInstanceStr.find("USB\\") == 0 && parentInstanceStr.find("VID_") != std::string::npos) {
                                         logf("  ✓ Найдено USB устройство для мыши: " + parentInstanceStr.substr(0, 80));
@@ -856,23 +856,23 @@ static int DisableUsbMouseManual() {
                                     }
                                 }
                             }
-                            
+
                             if (foundMouse) break;
                         }
                     }
                 }
             }
-            
+
             SetupDiDestroyDeviceInfoList(hDevInfo);
         }
     }
-    
+
     if (!foundMouse) {
         printf("ERROR NO_USB_MOUSE_FOUND 0\n");
         logf("ERROR: USB мышь не найдена");
         return 1;
     }
-    
+
     // Проверяем статус устройства перед отключением
     ULONG status = 0;
     ULONG problem = 0;
@@ -880,14 +880,14 @@ static int DisableUsbMouseManual() {
     if (statusCr == CR_SUCCESS) {
         logf("  [DEBUG] Статус устройства: status=0x" + std::to_string(status) + ", problem=0x" + std::to_string(problem));
     }
-    
+
     // Пробуем отключить устройство через CM_Disable_DevNode
     // НЕ используем CM_DISABLE_PERSIST, чтобы устройство можно было включить при переподключении
     logf("  Пробуем отключить USB мышь: DevInst=" + std::to_string(mouseDevInst));
     CONFIGRET cr = CM_Disable_DevNode(mouseDevInst, 0);  // 0 = временное отключение, не постоянное
-    
+
     logf("  CM_Disable_DevNode вернул код: " + std::to_string(cr));
-    
+
     // Если CM_Disable_DevNode не работает, пробуем CM_Request_Device_Eject
     if (cr != CR_SUCCESS && cr != CR_INVALID_DEVNODE) {
         logf("  Пробуем альтернативный метод: CM_Request_Device_Eject");
@@ -895,14 +895,27 @@ static int DisableUsbMouseManual() {
         char vetoName[MAX_PATH] = {0};
         CONFIGRET ejectCr = CM_Request_Device_EjectA(mouseDevInst, &vetoType, vetoName, sizeof(vetoName), 0);
         logf("  CM_Request_Device_Eject вернул код: " + std::to_string(ejectCr));
-        
+
         if (ejectCr == CR_SUCCESS) {
             printf("OK USB_MOUSE_DISABLED\n");
             logf("✓ РУЧНОЕ ОТКЛЮЧЕНИЕ: USB мышь успешно отключена через CM_Request_Device_Eject");
             return 0;
         }
     }
-    
+
+    // Additional approach: Try to disable using CM_Disable_DevNode with different flags
+    if (cr == CR_ACCESS_DENIED || cr == CR_FAILURE || cr == CR_NO_SUCH_DEVINST) {
+        logf("  Пробуем альтернативный метод: CM_Disable_DevNode с флагом CM_DISABLE_ABSOLUTE");
+        CONFIGRET cr2 = CM_Disable_DevNode(mouseDevInst, CM_DISABLE_ABSOLUTE);
+        logf("  CM_Disable_DevNode с CM_DISABLE_ABSOLUTE вернул код: " + std::to_string(cr2));
+
+        if (cr2 == CR_SUCCESS) {
+            printf("OK USB_MOUSE_DISABLED\n");
+            logf("✓ РУЧНОЕ ОТКЛЮЧЕНИЕ: USB мышь успешно отключена через CM_Disable_DevNode с флагом CM_DISABLE_ABSOLUTE");
+            return 0;
+        }
+    }
+
     if (cr == CR_SUCCESS) {
         printf("OK USB_MOUSE_DISABLED\n");
         logf("✓ РУЧНОЕ ОТКЛЮЧЕНИЕ: USB мышь успешно отключена через CM_Disable_DevNode");

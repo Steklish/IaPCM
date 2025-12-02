@@ -47,3 +47,181 @@
 2025-11-11 11:17:38   Пробуем извлечь USBSTOR устройство: DevInst=13
 2025-11-11 11:17:38   CM_Request_Device_Eject для USBSTOR вернул код: 0
 2025-11-11 11:17:38 ✓ РУЧНОЕ БЕЗОПАСНОЕ ИЗВЛЕЧЕНИЕ: Диск E: успешно извлечён через CM_Request_Device_Eject
+2025-12-01 12:33:55 → РУЧНОЕ ОТКЛЮЧЕНИЕ: Запрос отключения USB-мыши
+2025-12-01 12:33:55   Способ 1: Ищем USB HID мышь через SetupDiGetClassDevs:
+2025-12-01 12:33:55   [DEBUG] Проверяю HID устройство #0: HID-compliant mouse (hid\msft0001&col01\4&3b114b9d&0&0000)
+2025-12-01 12:33:55   [DEBUG] Проверяю HID устройство #1: HID-compliant touch pad (hid\msft0001&col02\4&3b114b9d&0&0001)
+2025-12-01 12:33:55   [DEBUG] Проверяю HID устройство #2: Microsoft Input Configuration Device (hid\msft0001&col03\4&3b114b9d&0&0002)
+2025-12-01 12:33:55   [DEBUG] Проверяю HID устройство #3: HID-compliant vendor-defined device (hid\msft0001&col04\4&3b114b9d&0&0003)
+2025-12-01 12:33:55   [DEBUG] Проверено 4 HID устройств, USB мышь не найдена
+2025-12-01 12:33:55   Способ 2: Ищем USB мышь через класс Mouse:
+2025-12-01 12:33:55   [DEBUG] Проверяю мышь #0: HID-compliant mouse (hid\msft0001&col01\4&3b114b9d&0&0000)
+2025-12-01 12:33:55   [DEBUG] Проверено 1 мышей, USB мышь не найдена
+2025-12-01 12:33:55   Способ 3: Ищем USB устройство, поднимаясь по дереву от HID устройств:
+2025-12-01 12:33:55   [DEBUG] Проверяю родительское устройство (уровень 0): ACPI\MSFT0001\3&31FF937C&0
+2025-12-01 12:33:55   [DEBUG] Проверяю родительское устройство (уровень 1): ACPI\AMDI0010\3
+2025-12-01 12:33:55   [DEBUG] Проверяю родительское устройство (уровень 2): ACPI_HAL\PNP0C08\0
+2025-12-01 12:33:55   [DEBUG] Проверяю родительское устройство (уровень 3): ROOT\ACPI_HAL\0000
+2025-12-01 12:33:55   [DEBUG] Проверяю родительское устройство (уровень 4): HTREE\ROOT\0
+2025-12-01 12:33:55 ERROR: USB мышь не найдена
+2025-12-01 12:34:32 → РУЧНОЕ ОТКЛЮЧЕНИЕ: Запрос отключения USB-мыши
+2025-12-01 12:34:32   Способ 1: Ищем USB HID мышь через SetupDiGetClassDevs:
+2025-12-01 12:34:32   [DEBUG] Проверяю HID устройство #0: HID-compliant mouse (hid\msft0001&col01\4&3b114b9d&0&0000)
+2025-12-01 12:34:32   [DEBUG] Проверяю HID устройство #1: HID-compliant touch pad (hid\msft0001&col02\4&3b114b9d&0&0001)
+2025-12-01 12:34:32   [DEBUG] Проверяю HID устройство #2: Microsoft Input Configuration Device (hid\msft0001&col03\4&3b114b9d&0&0002)
+2025-12-01 12:34:32   [DEBUG] Проверяю HID устройство #3: HID-compliant vendor-defined device (hid\msft0001&col04\4&3b114b9d&0&0003)
+2025-12-01 12:34:32   [DEBUG] Проверяю HID устройство #4: HID-compliant mouse (hid\vid_3151&pid_3020&mi_01&col01\8&34a67f2&0&0000)
+2025-12-01 12:34:32   [DEBUG] Проверяю родительское устройство (уровень 0): USB\VID_3151&PID_3020&MI_01\7&3416C6F3&1&0001
+2025-12-01 12:34:32   ✓ Найдено USB устройство для мыши: USB\VID_3151&PID_3020&MI_01\7&3416C6F3&1&0001
+2025-12-01 12:34:32   [DEBUG] Статус устройства: status=0x25174026, problem=0x0
+2025-12-01 12:34:32   Пробуем отключить USB мышь: DevInst=21
+2025-12-01 12:34:32   CM_Disable_DevNode вернул код: 51
+2025-12-01 12:34:32   Пробуем альтернативный метод: CM_Request_Device_Eject
+2025-12-01 12:34:32   CM_Request_Device_Eject вернул код: 23
+2025-12-01 12:34:32 ERROR: CM_Disable_DevNode failed для USB мыши (код 51)
+2025-12-01 12:34:42 → РУЧНОЕ ОТКЛЮЧЕНИЕ: Запрос отключения USB-мыши
+2025-12-01 12:34:42   Способ 1: Ищем USB HID мышь через SetupDiGetClassDevs:
+2025-12-01 12:34:42   [DEBUG] Проверяю HID устройство #0: HID-compliant mouse (hid\msft0001&col01\4&3b114b9d&0&0000)
+2025-12-01 12:34:42   [DEBUG] Проверяю HID устройство #1: HID-compliant touch pad (hid\msft0001&col02\4&3b114b9d&0&0001)
+2025-12-01 12:34:42   [DEBUG] Проверяю HID устройство #2: Microsoft Input Configuration Device (hid\msft0001&col03\4&3b114b9d&0&0002)
+2025-12-01 12:34:42   [DEBUG] Проверяю HID устройство #3: HID-compliant vendor-defined device (hid\msft0001&col04\4&3b114b9d&0&0003)
+2025-12-01 12:34:42   [DEBUG] Проверяю HID устройство #4: HID-compliant mouse (hid\vid_3151&pid_3020&mi_01&col01\8&34a67f2&0&0000)
+2025-12-01 12:34:42   [DEBUG] Проверяю родительское устройство (уровень 0): USB\VID_3151&PID_3020&MI_01\7&3416C6F3&1&0001
+2025-12-01 12:34:42   ✓ Найдено USB устройство для мыши: USB\VID_3151&PID_3020&MI_01\7&3416C6F3&1&0001
+2025-12-01 12:34:42   [DEBUG] Статус устройства: status=0x25174026, problem=0x0
+2025-12-01 12:34:42   Пробуем отключить USB мышь: DevInst=21
+2025-12-01 12:34:42   CM_Disable_DevNode вернул код: 51
+2025-12-01 12:34:42   Пробуем альтернативный метод: CM_Request_Device_Eject
+2025-12-01 12:34:42   CM_Request_Device_Eject вернул код: 23
+2025-12-01 12:34:42 ERROR: CM_Disable_DevNode failed для USB мыши (код 51)
+2025-12-01 12:35:33   Найден USB диск (помечен как Fixed): E:
+2025-12-01 12:35:33   Найден USB диск (помечен как Fixed): E:
+2025-12-01 12:35:35   Найден USB диск (помечен как Fixed): E:
+2025-12-01 12:35:45   Найден USB диск (помечен как Fixed): E:
+2025-12-01 12:35:46   Найден USB диск (помечен как Fixed): E:
+2025-12-01 12:35:55 Attempting to safely eject drive E:
+2025-12-01 12:35:55 Volume locked successfully
+2025-12-01 12:35:55 Volume dismounted successfully
+2025-12-01 12:35:55 Drive E: ejected successfully!
+2025-12-01 12:35:58   Найден USB диск (помечен как Fixed): E:
+2025-12-01 12:36:09 → РУЧНОЕ ИЗВЛЕЧЕНИЕ: Запрос безопасного извлечения диска E:
+2025-12-01 12:36:09   Найдено устройство диска через Disk GUID: DevInst=22
+2025-12-01 12:36:09   Найдено устройство диска: DevInst=22
+2025-12-01 12:36:09   Способ 1: Ищем USB устройство, поднимаясь по дереву от диска:
+2025-12-01 12:36:09   [DEBUG] Проверяю родительское устройство (уровень 0): USB\VID_125F&PID_A35A\MSFT30444016138004
+2025-12-01 12:36:09   ✓ Найдено USB устройство в дереве: USB\VID_125F&PID_A35A\MSFT30444016138004
+2025-12-01 12:36:09   Пробуем извлечь USBSTOR устройство: DevInst=25
+2025-12-01 12:36:10   CM_Request_Device_Eject для USBSTOR вернул код: 0
+2025-12-01 12:36:10 ✓ РУЧНОЕ БЕЗОПАСНОЕ ИЗВЛЕЧЕНИЕ: Диск E: успешно извлечён через CM_Request_Device_Eject
+2025-12-01 12:36:30   Найден USB диск (помечен как Fixed): E:
+2025-12-01 12:36:36 Attempting to safely eject drive E:
+2025-12-01 12:36:36 Volume locked successfully
+2025-12-01 12:36:36 Volume dismounted successfully
+2025-12-01 12:36:36 Drive E: ejected successfully!
+2025-12-01 12:36:38   Найден USB диск (помечен как Fixed): E:
+2025-12-01 12:36:50 Attempting to safely eject drive E:
+2025-12-01 12:36:50 Volume locked successfully
+2025-12-01 12:36:50 Volume dismounted successfully
+2025-12-01 12:36:50 Drive E: ejected successfully!
+2025-12-01 12:36:53   Найден USB диск (помечен как Fixed): E:
+2025-12-01 13:02:43   Найден USB диск (помечен как Fixed): E:
+2025-12-01 13:03:53 Attempting to safely eject drive E:
+2025-12-01 13:03:53 Volume locked successfully
+2025-12-01 13:03:53 Volume dismounted successfully
+2025-12-01 13:03:53 Drive E: ejected successfully!
+2025-12-01 13:03:56   Найден USB диск (помечен как Fixed): E:
+2025-12-01 13:04:14 Attempting to safely eject drive E:
+2025-12-01 13:04:14 Failed to lock volume: 5
+2025-12-01 13:04:18 → РУЧНОЕ ИЗВЛЕЧЕНИЕ: Запрос безопасного извлечения диска E:
+2025-12-01 13:04:18   Найдено устройство диска через Disk GUID: DevInst=16
+2025-12-01 13:04:18   Найдено устройство диска: DevInst=16
+2025-12-01 13:04:18   Способ 1: Ищем USB устройство, поднимаясь по дереву от диска:
+2025-12-01 13:04:18   [DEBUG] Проверяю родительское устройство (уровень 0): USB\VID_125F&PID_A35A\MSFT30444016138004
+2025-12-01 13:04:18   ✓ Найдено USB устройство в дереве: USB\VID_125F&PID_A35A\MSFT30444016138004
+2025-12-01 13:04:18   Пробуем извлечь USBSTOR устройство: DevInst=19
+2025-12-01 13:04:18   CM_Request_Device_Eject для USBSTOR вернул код: 23
+2025-12-01 13:04:18 ⚠ ОТКАЗ В БЕЗОПАСНОМ ИЗВЛЕЧЕНИИ: Диск E: - STORAGE\Volume\{09833d49-aa91-11f0-8725-5405dbea9f05}#000000000100000010/3 (veto type: 6)
+2025-12-01 13:04:25 Attempting to safely eject drive E:
+2025-12-01 13:04:25 Volume locked successfully
+2025-12-01 13:04:25 Volume dismounted successfully
+2025-12-01 13:04:25 Drive E: ejected successfully!
+2025-12-01 13:04:28   Найден USB диск (помечен как Fixed): E:
+2025-12-01 13:16:09 → РУЧНОЕ ОТКЛЮЧЕНИЕ: Запрос отключения USB-мыши
+2025-12-01 13:16:09   Способ 1: Ищем USB HID мышь через SetupDiGetClassDevs:
+2025-12-01 13:16:09   [DEBUG] Проверяю HID устройство #0: HID-compliant mouse (hid\msft0001&col01\4&3b114b9d&0&0000)
+2025-12-01 13:16:09   [DEBUG] Проверяю HID устройство #1: HID-compliant touch pad (hid\msft0001&col02\4&3b114b9d&0&0001)
+2025-12-01 13:16:09   [DEBUG] Проверяю HID устройство #2: Microsoft Input Configuration Device (hid\msft0001&col03\4&3b114b9d&0&0002)
+2025-12-01 13:16:09   [DEBUG] Проверяю HID устройство #3: HID-compliant vendor-defined device (hid\msft0001&col04\4&3b114b9d&0&0003)
+2025-12-01 13:16:09   [DEBUG] Проверяю HID устройство #4: HID-compliant mouse (hid\vid_3151&pid_3020&mi_01&col01\8&34a67f2&0&0000)
+2025-12-01 13:16:09   [DEBUG] Проверяю родительское устройство (уровень 0): USB\VID_3151&PID_3020&MI_01\7&3416C6F3&1&0001
+2025-12-01 13:16:09   ✓ Найдено USB устройство для мыши: USB\VID_3151&PID_3020&MI_01\7&3416C6F3&1&0001
+2025-12-01 13:16:09   [DEBUG] Статус устройства: status=0x25174026, problem=0x0
+2025-12-01 13:16:09   Пробуем отключить USB мышь: DevInst=20
+2025-12-01 13:16:09   CM_Disable_DevNode вернул код: 51
+2025-12-01 13:16:09   Пробуем альтернативный метод: CM_Request_Device_Eject
+2025-12-01 13:16:09   CM_Request_Device_Eject вернул код: 23
+2025-12-01 13:16:09 ERROR: CM_Disable_DevNode failed для USB мыши (код 51)
+2025-12-01 13:16:11 → РУЧНОЕ ОТКЛЮЧЕНИЕ: Запрос отключения USB-мыши
+2025-12-01 13:16:11   Способ 1: Ищем USB HID мышь через SetupDiGetClassDevs:
+2025-12-01 13:16:11   [DEBUG] Проверяю HID устройство #0: HID-compliant mouse (hid\msft0001&col01\4&3b114b9d&0&0000)
+2025-12-01 13:16:11   [DEBUG] Проверяю HID устройство #1: HID-compliant touch pad (hid\msft0001&col02\4&3b114b9d&0&0001)
+2025-12-01 13:16:11   [DEBUG] Проверяю HID устройство #2: Microsoft Input Configuration Device (hid\msft0001&col03\4&3b114b9d&0&0002)
+2025-12-01 13:16:11   [DEBUG] Проверяю HID устройство #3: HID-compliant vendor-defined device (hid\msft0001&col04\4&3b114b9d&0&0003)
+2025-12-01 13:16:11   [DEBUG] Проверяю HID устройство #4: HID-compliant mouse (hid\vid_3151&pid_3020&mi_01&col01\8&34a67f2&0&0000)
+2025-12-01 13:16:11   [DEBUG] Проверяю родительское устройство (уровень 0): USB\VID_3151&PID_3020&MI_01\7&3416C6F3&1&0001
+2025-12-01 13:16:11   ✓ Найдено USB устройство для мыши: USB\VID_3151&PID_3020&MI_01\7&3416C6F3&1&0001
+2025-12-01 13:16:11   [DEBUG] Статус устройства: status=0x25174026, problem=0x0
+2025-12-01 13:16:11   Пробуем отключить USB мышь: DevInst=20
+2025-12-01 13:16:11   CM_Disable_DevNode вернул код: 51
+2025-12-01 13:16:11   Пробуем альтернативный метод: CM_Request_Device_Eject
+2025-12-01 13:16:11   CM_Request_Device_Eject вернул код: 23
+2025-12-01 13:16:11 ERROR: CM_Disable_DevNode failed для USB мыши (код 51)
+2025-12-01 13:16:13 → РУЧНОЕ ОТКЛЮЧЕНИЕ: Запрос отключения USB-мыши
+2025-12-01 13:16:13   Способ 1: Ищем USB HID мышь через SetupDiGetClassDevs:
+2025-12-01 13:16:13   [DEBUG] Проверяю HID устройство #0: HID-compliant mouse (hid\msft0001&col01\4&3b114b9d&0&0000)
+2025-12-01 13:16:13   [DEBUG] Проверяю HID устройство #1: HID-compliant touch pad (hid\msft0001&col02\4&3b114b9d&0&0001)
+2025-12-01 13:16:13   [DEBUG] Проверяю HID устройство #2: Microsoft Input Configuration Device (hid\msft0001&col03\4&3b114b9d&0&0002)
+2025-12-01 13:16:13   [DEBUG] Проверяю HID устройство #3: HID-compliant vendor-defined device (hid\msft0001&col04\4&3b114b9d&0&0003)
+2025-12-01 13:16:13   [DEBUG] Проверяю HID устройство #4: HID-compliant mouse (hid\vid_3151&pid_3020&mi_01&col01\8&34a67f2&0&0000)
+2025-12-01 13:16:13   [DEBUG] Проверяю родительское устройство (уровень 0): USB\VID_3151&PID_3020&MI_01\7&3416C6F3&1&0001
+2025-12-01 13:16:13   ✓ Найдено USB устройство для мыши: USB\VID_3151&PID_3020&MI_01\7&3416C6F3&1&0001
+2025-12-01 13:16:13   [DEBUG] Статус устройства: status=0x25174026, problem=0x0
+2025-12-01 13:16:13   Пробуем отключить USB мышь: DevInst=20
+2025-12-01 13:16:13   CM_Disable_DevNode вернул код: 51
+2025-12-01 13:16:13   Пробуем альтернативный метод: CM_Request_Device_Eject
+2025-12-01 13:16:13   CM_Request_Device_Eject вернул код: 23
+2025-12-01 13:16:13 ERROR: CM_Disable_DevNode failed для USB мыши (код 51)
+2025-12-01 14:31:53 → РУЧНОЕ ОТКЛЮЧЕНИЕ: Запрос отключения USB-мыши
+2025-12-01 14:31:53   Способ 1: Ищем USB HID мышь через SetupDiGetClassDevs:
+2025-12-01 14:31:53   [DEBUG] Проверяю HID устройство #0: HID-compliant mouse (hid\msft0001&col01\4&3b114b9d&0&0000)
+2025-12-01 14:31:53   [DEBUG] Проверяю HID устройство #1: HID-compliant touch pad (hid\msft0001&col02\4&3b114b9d&0&0001)
+2025-12-01 14:31:53   [DEBUG] Проверяю HID устройство #2: Microsoft Input Configuration Device (hid\msft0001&col03\4&3b114b9d&0&0002)
+2025-12-01 14:31:53   [DEBUG] Проверяю HID устройство #3: HID-compliant vendor-defined device (hid\msft0001&col04\4&3b114b9d&0&0003)
+2025-12-01 14:31:53   [DEBUG] Проверяю HID устройство #4: HID-compliant mouse (hid\vid_3151&pid_3020&mi_01&col01\8&34a67f2&0&0000)
+2025-12-01 14:31:53   [DEBUG] Проверяю родительское устройство (уровень 0): USB\VID_3151&PID_3020&MI_01\7&3416C6F3&1&0001
+2025-12-01 14:31:53   ✓ Найдено USB устройство для мыши: USB\VID_3151&PID_3020&MI_01\7&3416C6F3&1&0001
+2025-12-01 14:31:53   [DEBUG] Статус устройства: status=0x25174026, problem=0x0
+2025-12-01 14:31:53   Пробуем отключить USB мышь: DevInst=16
+2025-12-01 14:31:53   CM_Disable_DevNode вернул код: 51
+2025-12-01 14:31:53   Пробуем альтернативный метод: CM_Request_Device_Eject
+2025-12-01 14:31:53   CM_Request_Device_Eject вернул код: 23
+2025-12-01 14:31:53   Пробуем альтернативный метод: CM_Disable_DevNode с флагом CM_DISABLE_ABSOLUTE
+2025-12-01 14:31:53   CM_Disable_DevNode с CM_DISABLE_ABSOLUTE вернул код: 51
+2025-12-01 14:31:53 ERROR: CM_Disable_DevNode failed для USB мыши (код 51)
+2025-12-01 14:31:54 → РУЧНОЕ ОТКЛЮЧЕНИЕ: Запрос отключения USB-мыши
+2025-12-01 14:31:54   Способ 1: Ищем USB HID мышь через SetupDiGetClassDevs:
+2025-12-01 14:31:54   [DEBUG] Проверяю HID устройство #0: HID-compliant mouse (hid\msft0001&col01\4&3b114b9d&0&0000)
+2025-12-01 14:31:54   [DEBUG] Проверяю HID устройство #1: HID-compliant touch pad (hid\msft0001&col02\4&3b114b9d&0&0001)
+2025-12-01 14:31:54   [DEBUG] Проверяю HID устройство #2: Microsoft Input Configuration Device (hid\msft0001&col03\4&3b114b9d&0&0002)
+2025-12-01 14:31:54   [DEBUG] Проверяю HID устройство #3: HID-compliant vendor-defined device (hid\msft0001&col04\4&3b114b9d&0&0003)
+2025-12-01 14:31:54   [DEBUG] Проверяю HID устройство #4: HID-compliant mouse (hid\vid_3151&pid_3020&mi_01&col01\8&34a67f2&0&0000)
+2025-12-01 14:31:55   [DEBUG] Проверяю родительское устройство (уровень 0): USB\VID_3151&PID_3020&MI_01\7&3416C6F3&1&0001
+2025-12-01 14:31:55   ✓ Найдено USB устройство для мыши: USB\VID_3151&PID_3020&MI_01\7&3416C6F3&1&0001
+2025-12-01 14:31:55   [DEBUG] Статус устройства: status=0x25174026, problem=0x0
+2025-12-01 14:31:55   Пробуем отключить USB мышь: DevInst=16
+2025-12-01 14:31:55   CM_Disable_DevNode вернул код: 51
+2025-12-01 14:31:55   Пробуем альтернативный метод: CM_Request_Device_Eject
+2025-12-01 14:31:55   CM_Request_Device_Eject вернул код: 23
+2025-12-01 14:31:55   Пробуем альтернативный метод: CM_Disable_DevNode с флагом CM_DISABLE_ABSOLUTE
+2025-12-01 14:31:55   CM_Disable_DevNode с CM_DISABLE_ABSOLUTE вернул код: 51
+2025-12-01 14:31:55 ERROR: CM_Disable_DevNode failed для USB мыши (код 51)

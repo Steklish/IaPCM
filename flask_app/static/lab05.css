@@ -1,0 +1,425 @@
+/* lab05.css - Styling for USB Device Management Interface */
+
+:root {
+    --primary-color: #8a2be2;
+    --secondary-color: #da70d6;
+    --background-color: #1a1a2e;
+    --card-bg: rgba(0, 0, 0, 0.7);
+    --text-color: #ffffff;
+    --border-color: #ff6b6b;
+    --success-color: #4caf50;
+    --warning-color: #ff9800;
+    --danger-color: #f44336;
+}
+
+body {
+    font-family: 'Zen Dots', cursive;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.gif-background {
+    position: fixed;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.gif-background img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.4);
+}
+
+.main-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 15px;
+    position: relative;
+    z-index: 1;
+}
+
+.home-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.3s ease;
+}
+
+.home-button:hover {
+    background: var(--secondary-color);
+    transform: scale(1.1);
+}
+
+h1 {
+    text-align: center;
+    font-size: 2.5em;
+    margin-bottom: 30px;
+    color: var(--secondary-color);
+    text-shadow: 0 0 10px rgba(218, 112, 214, 0.7);
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.controls-section {
+    background: var(--card-bg);
+    padding: 15px;
+    border-radius: 8px;
+    border: 2px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    height: fit-content;
+}
+
+.controls-section h2 {
+    margin-top: 0;
+    color: var(--secondary-color);
+    text-align: center;
+    font-size: 1.2em;
+}
+
+.controls-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.control-card {
+    background: rgba(50, 50, 70, 0.8);
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid var(--secondary-color);
+}
+
+.control-card h3 {
+    margin-top: 0;
+    color: var(--secondary-color);
+    text-align: center;
+    font-size: 1em;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.control-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.control-btn:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.status-section {
+    background: var(--card-bg);
+    padding: 15px;
+    border-radius: 8px;
+    border: 2px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    overflow-x: auto;  /* Allow horizontal scrolling if needed */
+}
+
+.device-lists {
+    display: flex;
+    gap: 15px;
+    min-width: 600px;  /* Minimum width to accommodate both columns */
+}
+
+.device-column {
+    flex: 1;
+    min-width: 250px;  /* Minimum width for each column */
+}
+
+.device-column h3 {
+    text-align: center;
+    color: var(--secondary-color);
+    margin-top: 0;
+    font-size: 1.1em;
+}
+
+.device-container {
+    background: rgba(30, 30, 50, 0.9);
+    border-radius: 6px;
+    padding: 12px;
+    height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--primary-color);
+    font-size: 0.9em;
+}
+
+.device-container ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.input-device-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.input-device-item {
+    background: rgba(70, 70, 100, 0.7);
+    margin-bottom: 8px;
+    padding: 8px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--secondary-color);
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.device-info {
+    flex: 1;
+    min-width: 150px;
+}
+
+.device-name {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 3px;
+    font-size: 0.9em;
+    word-break: break-word;
+}
+
+.device-type {
+    color: var(--secondary-color);
+    font-size: 11px;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.device-vidpid {
+    color: #cccccc;
+    font-size: 10px;
+    display: block;
+}
+
+.device-status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+    min-width: 120px;
+    align-self: flex-start;
+}
+
+.status-indicator {
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 11px;
+    margin-bottom: 3px;
+    align-self: flex-end;
+}
+
+.status-indicator.connected {
+    background: var(--success-color);
+    color: white;
+}
+
+.status-indicator.disconnected {
+    background: var(--danger-color);
+    color: white;
+}
+
+.eject-btn, .eject-cm-btn, .control-btn {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.eject-btn:hover, .eject-cm-btn:hover, .control-btn:hover {
+    background: #d32f2f;
+}
+
+.eject-cm-btn {
+    background: var(--warning-color);
+}
+
+.eject-cm-btn:hover {
+    background: #f57c00;
+}
+
+.log-section {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid var(--border-color);
+    backdrop-filter: blur(10px);
+}
+
+.log-section h3 {
+    text-align: center;
+    color: var(--secondary-color);
+    margin-top: 0;
+}
+
+.log-container {
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 15px;
+    height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--primary-color);
+}
+
+.log-entry {
+    padding: 5px 0;
+    border-bottom: 1px solid #444;
+    font-size: 12px;
+}
+
+.timestamp {
+    color: var(--secondary-color);
+    margin-right: 10px;
+}
+
+/* Goodbye GIF overlay */
+#goodbye-gif {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    flex-direction: column;
+}
+
+#goodbye-gif img {
+    max-width: 50%;
+    max-height: 50%;
+    border-radius: 10px;
+}
+
+#goodbye-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    flex-direction: column;
+}
+
+#goodbye-overlay img {
+    max-width: 50%;
+    max-height: 50%;
+    border-radius: 10px;
+}
+
+#goodbye-overlay div {
+    color: white;
+    font-size: 24px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .device-lists {
+        flex-direction: column;
+    }
+
+    .input-device-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .device-status {
+        align-self: stretch;
+        align-items: flex-start;
+    }
+
+    .status-indicator {
+        align-self: flex-start;
+    }
+
+    .eject-btn, .eject-cm-btn {
+        margin-top: 5px;
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        padding: 10px;
+    }
+
+    .dashboard {
+        gap: 10px;
+    }
+
+    .controls-section, .status-section {
+        padding: 10px;
+    }
+
+    .device-container {
+        height: 300px;
+        padding: 10px;
+    }
+
+    .control-card {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+}

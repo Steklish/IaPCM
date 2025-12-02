@@ -6,27 +6,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const listDrivesBtn = document.getElementById('list-drives-btn');
     const refreshBtn = document.getElementById('refresh-btn');
     const refreshInputDevicesBtn = document.getElementById('refresh-input-devices-btn');
-    const disableKeyboardBtn = document.getElementById('disable-keyboard-btn');
-    
+
     // Set up event listeners
     if (disableMouseBtn) {
         disableMouseBtn.addEventListener('click', disableUsbMouse);
     }
-    
+
     if (listDrivesBtn) {
         listDrivesBtn.addEventListener('click', listUsbDrives);
     }
-    
+
     if (refreshBtn) {
         refreshBtn.addEventListener('click', listUsbDrives);
     }
-    
+
     if (refreshInputDevicesBtn) {
         refreshInputDevicesBtn.addEventListener('click', listInputDevices);
-    }
-    
-    if (disableKeyboardBtn) {
-        disableKeyboardBtn.addEventListener('click', disableKeyboard);
     }
     
     // Load initial device lists
@@ -259,12 +254,6 @@ function refreshInputDevices() {
     addToActivityLog('Refreshing input devices...');
 }
 
-// Function to disable keyboard (placeholder)
-async function disableKeyboard() {
-    alert('Disable keyboard function would be implemented here');
-    addToActivityLog('Attempted to disable keyboard');
-}
-
 // Function to show the goodbye.gif overlay
 function showGoodbyeGif() {
     // Check if the overlay already exists to avoid duplicates
@@ -272,7 +261,7 @@ function showGoodbyeGif() {
     if (overlay) {
         overlay.remove(); // Remove existing overlay if it exists
     }
-    
+
     // Create overlay div
     overlay = document.createElement('div');
     overlay.id = 'goodbye-overlay';
@@ -287,7 +276,7 @@ function showGoodbyeGif() {
     overlay.style.alignItems = 'center';
     overlay.style.zIndex = '9999';
     overlay.style.flexDirection = 'column';
-    
+
     // Create and configure image element
     const gif = document.createElement('img');
     gif.src = '/static/lab_05/Goodbye.gif';
@@ -295,7 +284,7 @@ function showGoodbyeGif() {
     gif.style.maxWidth = '50%';
     gif.style.maxHeight = '50%';
     gif.style.borderRadius = '10px';
-    
+
     // Add text below the gif
     const text = document.createElement('div');
     text.textContent = 'Ejecting USB device...';
@@ -303,11 +292,11 @@ function showGoodbyeGif() {
     text.style.fontSize = '24px';
     text.style.marginTop = '20px';
     text.style.textAlign = 'center';
-    
+
     // Add elements to overlay
     overlay.appendChild(gif);
     overlay.appendChild(text);
-    
+
     // Add overlay to the body
     document.body.appendChild(overlay);
 }

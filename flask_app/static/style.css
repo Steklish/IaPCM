@@ -1,0 +1,157 @@
+body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: #000;
+    overflow: hidden; /* Prevents scrollbars from parallax effect */
+    font-family: "Zen Dots", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.parallax-container {    
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    transform: scale(1.3);
+    transition:0.5s;
+}
+
+#l3_icon{
+  transition: opacity 0.5s ease-in-out;
+  z-index: 7;
+  width:100%;
+  height: auto;
+}
+
+#cam{
+  transition: opacity 0.5s ease-in-out;
+  z-index: 7;
+  width:100%;
+  height: auto;
+}
+.rotate {
+  animation: rotation 20s linear infinite;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.parallax-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.eye {
+  scale: 0.1;
+  object-fit: contain;
+  width: auto;
+  height: auto;
+  position: absolute; /* if you want to override absolute positioning */
+  /* opacity: 0.6; */
+  mix-blend-mode:normal;
+}
+
+#layer-back { 
+  z-index: 1; 
+}
+#l_eye { z-index: 2; }
+#r_eye { z-index: 2; }
+#layer-front { 
+  z-index: 4; 
+}
+#viniette { 
+  z-index: 5; 
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+#layer-back_hue_adjustment{
+   z-index: 3;
+   mix-blend-mode: overlay; 
+}
+#glow{
+  z-index: 6;
+  mix-blend-mode: soft-light;
+}
+
+
+.main-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 4;
+    display: flex;
+    /* overflow-x: hidden; */
+    justify-content: center;
+    /* flex-wrap: wrap; */
+    /* gap: 20px; */
+}
+
+#cursor-coords {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    z-index: 5;
+    color: white;
+    background-color: rgba(0,0,0,0.5);
+    padding: 5px;
+    border-radius: 3px;
+}
+:root {
+  --btn-color: #ffffffd1;       /* normal text and border color */
+  --btn-color-hover: #ed9f40;   /* hover/focus text and border color */
+  --black: #000;
+}
+
+.dark-button, .blur-button, .no-fx-button {
+  padding: 10px 20px;
+  text-transform: uppercase;
+  border-radius: 800px;
+  font-size: 17px;
+  font-family: "Zen Dots", sans-serif;
+  font-weight: 500;
+  color: var(--btn-color);
+  text-shadow: none;
+  background: transparent;
+  cursor: pointer;
+  border: 2px solid #00000000;
+  transition: 0.5s ease;
+  user-select: none;
+}
+
+.blur-button:hover,
+.blur-button:focus,
+.no-fx-button:hover,
+.no-fx-button:focus {
+  color: white;
+  /* background: var(--btn-color-hover); */
+  border: 100px solid #00000000;
+  font-size: 70px;
+  text-shadow: 0 0 500px rgb(240, 133, 33), 0 0 100px white, 0 0 200px rgb(255, 72, 0);
+}
+.dark-button:hover,
+.dark-button:focus {
+  color: white;
+  /* background: var(--btn-color-hover); */
+  border: 100px solid #00000000;
+  font-size: 70px;
+  /* border-radius: 15px; */
+  text-shadow: 0 0 500px rgb(240, 133, 33), 0 0 100px white, 0 0 200px rgb(255, 72, 0);
+  box-shadow: 0 0 500px var(--black), 0 0 200px var(--black), 0 0 500px var(--black),
+              0 0 100000px var(--black), 0 0 100000px var(--black), 0 0 100000px var(--black), 0 0 100000000px var(--black);
+}
+
+.no-fx-button:hover,
+.no-fx-button:focus{
+  background-color: rgba(0, 0, 0, 0.439);
+}
